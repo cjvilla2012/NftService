@@ -160,16 +160,18 @@ export const listenForNFTTransfer = () => {
   console.log(`\n*** listenForNFTTransfer at ${HARMONIZE_ADDRESS}`)
   const web3 = getWssProvider()
   const harmonizeContract = new web3.eth.Contract(HARMONIZE.abi, HARMONIZE_ADDRESS)
+  logWithTime(`events`,harmonizeContract.events)
   harmonizeContract.events
     .Transfer()
     .on('connected', function (subscriptionId) {
       console.log(`*** listenForNFTTransfer subscription ${subscriptionId}`)
     })
+    /*
     .on('data', async function (event) {
       logWithTime('\n*** listenForNFTTransfer got data', event)
       processNFTTransfer(event)
     })
-
+*/
     .on('error', function (error) {
       // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
       const { code } = error
