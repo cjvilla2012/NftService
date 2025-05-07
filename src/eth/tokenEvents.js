@@ -151,6 +151,8 @@ const processNFTTransfer = async (event) => {
 }
 
 /**
+ * NOTE: This stuff does not work with latest Web3 4.16 *and* Web3  is no longer
+ * supported so we went back to web3 1.5.3 which worked for TurePicture. 
  * This event is emitted both on a mint and on a purchase.
  *
  * We have observed both code 1006 and code 1011 on Infura listeners. 1006 we expect,

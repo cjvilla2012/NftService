@@ -177,9 +177,9 @@ connectDb().then(async () => {
       logWithTime(`WSS provider is ${WSS_PROVIDER_URL}`)
     })
     listenForNFTTransfer()
-    //listenForNFTSetPrice()
-    //listenForNFTPayment()
-    //listenForNFTPartnerShareEvents()
+    listenForNFTSetPrice()
+    listenForNFTPayment()
+    listenForNFTPartnerShareEvents()
   } else {
     app.listen(process.env.PORT, async () => {
       logWithTime(
