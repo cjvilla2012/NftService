@@ -5,10 +5,7 @@ const debug = require('debug')('nftservice')
 import NFT from './nft'
 
 const connectDb = () => {
-  return mongoose.connect(process.env.NFT_DB, {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-  })
+  return mongoose.connect(process.env.NFT_DB)
 }
 
 
