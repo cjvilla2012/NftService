@@ -13,8 +13,6 @@ import path from 'path'
 import {
   addNFT,
   getNFT,
-  getToken,
-  getTokenMetadataUri,
   setSharePrice,
   startNFTTransaction,
 } from './controllers/NFTController'
@@ -32,7 +30,7 @@ import {
   WSS_PROVIDER_URL,
 } from './eth/tokenEvents'
 
-import { logWithTime } from './util/controllerUtil'
+import { logErrorWithTime, logWithTime } from './util/controllerUtil'
 import { verifyRequestUserId } from './middleware/auth'
 const ALLOWED_USER_AGENTS = ['FreshpingBot']
 export const allowedOrigins = ['https://www.harmonize.social']
