@@ -162,9 +162,7 @@ export const listenForNFTTransfer = () => {
   const harmonizeContract = new web3.eth.Contract(HARMONIZE.abi, HARMONIZE_ADDRESS)
   //logWithTime(`events`,harmonizeContract.events)
   const subscription = harmonizeContract.events.Transfer()
-    .on('connected', function (subscriptionId) {
-      console.log(`*** listenForNFTTransfer subscription ${subscriptionId}`)
-    })
+  logWithTime('subscription', subscription)
   subscription.on('data', function (event) {
     logWithTime('\n*** listenForNFTTransfer got data', event)
     processNFTTransfer(event)
