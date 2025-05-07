@@ -160,13 +160,13 @@ export const listenForNFTTransfer = () => {
   console.log(`\n*** listenForNFTTransfer at ${HARMONIZE_ADDRESS}`)
   const web3 = getWssProvider()
   const harmonizeContract = new web3.eth.Contract(HARMONIZE.abi, HARMONIZE_ADDRESS)
-  logWithTime(`events`,harmonizeContract.events)
+  //logWithTime(`events`,harmonizeContract.events)
   harmonizeContract.events
     .Transfer()
     .on('connected', function (subscriptionId) {
       console.log(`*** listenForNFTTransfer subscription ${subscriptionId}`)
     })
-    .on('data', async function (event) {
+    .on('data', function (event) {
       logWithTime('\n*** listenForNFTTransfer got data', event)
       processNFTTransfer(event)
     })
