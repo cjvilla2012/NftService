@@ -1,0 +1,16 @@
+[Unit]
+Description=NFTService
+After=mongod.service
+
+[Service]
+Environment=DEBUG="nftservice node index.js"
+ExecStart=/usr/bin/yarn start
+Restart=always
+RestartSec=10                
+StandardOutput=syslog        
+StandardError=syslog         
+SyslogIdentifier=nft-service
+WorkingDirectory=/root/NFTService/src
+
+[Install]
+WantedBy=multi-user.target

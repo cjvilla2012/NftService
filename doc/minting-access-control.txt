@@ -1,0 +1,13 @@
+1. If mint does not require MINTER role:
+
+- Anyone can call the method
+- Said anyone can assign any set of CIDs, valid or not
+- Said anyone is charged for the minting
+- Therefore said anyone can create a token with bad metadata addresses
+- So?
+
+2. If mint DOES require MINTER role:
+
+- Admin must assign MINTER role and this will be charged to the Admin
+- MINTER can call the method even outside of True Picture
+- At this point consequences are the same as for 1, above.

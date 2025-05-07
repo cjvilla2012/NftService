@@ -1,0 +1,14 @@
+node_modules
+dist
+testResults
+images
+secrets-metamask.json
+secrets.json
+auth.config.js
+yarn-error.log
+.env
+src/log/*
+
+.openzeppelin\.session
+t.html
+test.mp3
