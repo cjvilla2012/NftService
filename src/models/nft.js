@@ -31,7 +31,6 @@ import mongoose, { Schema } from 'mongoose'
  */
 const nftSchema = new mongoose.Schema(
   {
-    _id: false, // <-- disable _id
     tokenId: {
       type: String,
       required: true,
