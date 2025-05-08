@@ -32,7 +32,8 @@ import {
 
 import { 
   hostCanBypassCors,
-  logErrorWithTime, logWithTime } from './util/controllerUtil'
+  logErrorWithTime, logWithTime, 
+  referrerIsLocalhost} from './util/controllerUtil'
 import { verifyRequestUserId } from './middleware/auth'
 const ALLOWED_USER_AGENTS = ['FreshpingBot']
 export const allowedOrigins = ['https://www.harmonize.social']
