@@ -30,7 +30,9 @@ import {
   WSS_PROVIDER_URL,
 } from './eth/tokenEvents'
 
-import { logErrorWithTime, logWithTime } from './util/controllerUtil'
+import { 
+  hostCanBypassCors,
+  logErrorWithTime, logWithTime } from './util/controllerUtil'
 import { verifyRequestUserId } from './middleware/auth'
 const ALLOWED_USER_AGENTS = ['FreshpingBot']
 export const allowedOrigins = ['https://www.harmonize.social']
