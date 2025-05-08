@@ -42,7 +42,7 @@ export const getNFT = async (req, res) => {
 export const getNFTForMessage = async (req, res) => {
   const { messageId } = req.params
   try {
-    const nft = await NFT.findOne(messageId).lean()
+    const nft = await NFT.findOne({messageId}).lean()
     if (nft) {
       res.send(nft)
     } else {
