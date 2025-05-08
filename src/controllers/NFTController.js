@@ -9,9 +9,9 @@ import NFT from '../models/nft'
  * @param {*} res 
  */
 export const addNFT = async (req, res) => {
-  const { tokenId, name, description, messageId, price } = req.body
+  const { tokenId, mediaHash,name, description, messageId, price } = req.body
   try {
-    const nft = await NFT.create({ tokenId, name, description, messageId, price, creatorUserId: req.user })
+    const nft = await NFT.create({ tokenId, mediaHash,name, description, messageId, price, creatorUserId: req.user })
     res.send(nft)
   } catch (error) {
     sendError(`Unable to add NFT ${name} for uuid ${uuid}`, res, error)

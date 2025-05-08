@@ -5,14 +5,15 @@ import mongoose, { Schema } from 'mongoose'
 
  * 0) The NFT is associated with a Social Service Message identified by messageId in this document.
  * The NFT is permanently associated with the Message even if it is not minted
- * 1) Reference to a Harmonize minted NFT is stored in the this table
+ * 1) Reference to a Harmonize minted NFT is stored in this table
  * 2) The tokenId is the uint256 HEX string that is the NFT token ID. This should be created
  *    from a UUID on the client side.
-  3) The Sale price
-  4) The tokenId is referenced in the Social Service Message that defines the media
-  5) The NFT creator User (as defined in the Core Service) and current owner User 
+ * 3) The mediaHash is the SHA256 of the associated media, even if the media is not cold stored
+  4) The Sale price
+  5) The tokenId is referenced in the Social Service Message that defines the media
+  6) The NFT creator User (as defined in the Core Service) and current owner User 
      are stored in the nft table
-  6) Once a Message has a minted NFT, it cannot be deleted or changed in any way
+  7) Once a Message has a minted NFT, it cannot be deleted or changed in any way
 
   The creatorUserId is the Harmonize User id that created the NFT document. The
   owner is an Owner that is assigned when the Transfer event is received
@@ -36,6 +37,7 @@ const nftSchema = new mongoose.Schema(
       required: true,
       index: { unique: true }
     },
+    mediaHash:String,
     name: String,
     description: String,
     messageId: { type: String, required: true, index: { unique: true } },
