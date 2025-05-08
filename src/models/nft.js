@@ -44,7 +44,7 @@ const nftSchema = new mongoose.Schema(
     creatorUserId: {
       type: String,
     },
-    owner: { type: Schema.Types.ObjectId, ref: 'Owner', required: true, index: true },
+    owner: { type: Schema.Types.ObjectId, ref: 'Owner', index: true },
     price: {
       type: Number,
     },
