@@ -38,6 +38,20 @@ export const getNFT = async (req, res) => {
     sendError(`Error getting NFT ${tokenId}`, res, error)
   }
 }
+
+export const getNFTForMessage = async (req, res) => {
+  const { messageId } = req.params
+  try {
+    const nft = await NFT.findOne(messageId).lean()
+    if (nft) {
+      res.send(nft)
+    } else {
+      sendError(`Unable to find NFT for Message ${messageId}`, res)
+    }
+  } catch (error) {
+    sendError(`Error getting NFT for message ${messageId}`, res, error)
+  }
+}
 /**
  * Set the share price for the specified token. Only the token Owner can do this,
  * and so the signed-in user Id must match the nft owner Id.

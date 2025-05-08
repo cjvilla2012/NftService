@@ -13,6 +13,7 @@ import path from 'path'
 import {
   addNFT,
   getNFT,
+  getNFTForMessage,
   setSharePrice,
   startNFTTransaction,
 } from './controllers/NFTController'
@@ -147,6 +148,7 @@ app.use(function (err, req, res, next) {
 
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
 app.get('/api/nft/get/:tokenId', [verifyRequestUserId], getNFT)
+app.get('/api/nft/getByMessage/:messageId', [verifyRequestUserId], getNFTForMessage)
 app.post('/api/nft/sharePrice', [verifyRequestUserId], setSharePrice)
 
 app.post(
