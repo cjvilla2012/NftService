@@ -22,8 +22,8 @@ export const verifyUserId = async (userId) => {
              getCoreServiceOptions())
         const { data } = userResponse
         if (data) {
-            logWithTime('verifyUser got user', data)
             accessToken = data.accessToken
+            logWithTime(`verifyUser got accessToken ${accessToken}`)
         }
     } catch (error) {
         if (error.message) {
