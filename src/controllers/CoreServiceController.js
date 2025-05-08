@@ -8,13 +8,13 @@ import { logErrorWithTime, logWithTime } from '../util/controllerUtil'
  *@returns accessToken
 */
 export const verifyUserId = async (userId) => {
-    //logWithTime(`verifyUser ${userId}`)
+    logWithTime(`verifyUser ${userId}`)
     let accessToken
     try {
         const userResponse = await axios.get(`${process.env.USER_AUTH_API}/${userId}`, getCoreServiceOptions())
         const { data } = userResponse
         if (data) {
-            //logWithTime('verifyUser got user', data)
+            logWithTime('verifyUser got user', data)
             accessToken = data.accessToken
         }
     } catch (error) {
@@ -24,5 +24,5 @@ export const verifyUserId = async (userId) => {
             logErrorWithTime(`Unable to verify user ${userId}`, error)
         }
     }
-    return user
+    return accessToken
 }
