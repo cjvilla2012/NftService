@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import { TX_STATUS } from '../eth/tokenEvents'
 /**Though NFTs can be discovered using the owner's Ethereum address, since we require a Harmonize
  * User account to mint or transact NFTs, we save the Harmonize Core Service Users in this table.
  * This means transactions that occur outside Harmonize cannot be queried using this collection.
@@ -58,7 +59,7 @@ const nftSchema = new mongoose.Schema(
       default: undefined,
     },
     txHash: { type: String, default: undefined }, //To get the transaction that created the token
-    txStatus: { type: Number, default: undefined }, //The status of the transaction identified by txHash
+    txStatus: { type: Number, default: TX_STATUS.NONE }, //The status of the transaction identified by txHash
   },
   { collation: { locale: 'en', strength: 2 }},//For case-insensitive searches
   { timestamps: true, toJSON: { virtuals: true } }
