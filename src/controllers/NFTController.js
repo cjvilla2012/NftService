@@ -23,7 +23,7 @@ export const addNFT = async (req, res) => {
 /**
  * 
  * @param {*} req 
- * @param {*} res 
+ * @param {*} res nft if found, 404 if not
  */
 export const getNFT = async (req, res) => {
   const { tokenId } = req.params
@@ -32,13 +32,18 @@ export const getNFT = async (req, res) => {
     if (nft) {
       res.send(nft)
     } else {
-      sendError(`Unable to find NFT ${tokenId}`, res)
+      sendError(`Unable to find NFT ${tokenId}`, res,undefined,404)
     }
   } catch (error) {
     sendError(`Error getting NFT ${tokenId}`, res, error)
   }
 }
 
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res nft if found, 404 if not
+ */
 export const getNFTForMessage = async (req, res) => {
   const { messageId } = req.params
   try {
@@ -46,7 +51,7 @@ export const getNFTForMessage = async (req, res) => {
     if (nft) {
       res.send(nft)
     } else {
-      sendError(`Unable to find NFT for Message ${messageId}`, res)
+      sendError(`Unable to find NFT for Message ${messageId}`, res,undefined,404)
     }
   } catch (error) {
     sendError(`Error getting NFT for message ${messageId}`, res, error)
