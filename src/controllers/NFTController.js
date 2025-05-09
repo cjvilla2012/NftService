@@ -10,11 +10,13 @@ import mongoose from 'mongoose'
  * @param {*} res 
  */
 export const addNFT = async (req, res) => {
-  logWithTime(`addNFT ${req.user}`,req.body)
-  const { tokenId, mediaHash,name, description, messageId, price } = req.body
+  logWithTime(`addNFT ${req.user}`, req.body)
+  const { tokenId, mediaHash, name, description, messageId, price } = req.body
   try {
-    const nft = await NFT.create({ tokenId, mediaHash,name, description, messageId, price,
-       creatorUserId: req.user })
+    const nft = await NFT.create({
+      tokenId, mediaHash, name, description, messageId, price,
+      creatorUserId: req.user
+    })
     res.send(nft)
   } catch (error) {
     sendError(`Unable to add NFT ${name} for tokenId ${tokenId}`, res, error)
@@ -29,11 +31,11 @@ export const addNFT = async (req, res) => {
 export const getNFT = async (req, res) => {
   const { tokenId } = req.params
   try {
-    const nft = await NFT.findById(new mongoose.Types.ObjectId(`${tokenId}`)).lean()
+    const nft = await NFT.findOne({ tokenId }).lean()
     if (nft) {
       res.send(nft)
     } else {
-      sendError(`Unable to find NFT ${tokenId}`, res,undefined,404)
+      sendError(`Unable to find NFT ${tokenId}`, res, undefined, 404)
     }
   } catch (error) {
     sendError(`Error getting NFT ${tokenId}`, res, error)
@@ -48,11 +50,11 @@ export const getNFT = async (req, res) => {
 export const getNFTForMessage = async (req, res) => {
   const { messageId } = req.params
   try {
-    const nft = await NFT.findOne({messageId}).lean()
+    const nft = await NFT.findOne({ messageId }).lean()
     if (nft) {
       res.send(nft)
     } else {
-      sendError(`Unable to find NFT for Message ${messageId}`, res,undefined,404)
+      sendError(`Unable to find NFT for Message ${messageId}`, res, undefined, 404)
     }
   } catch (error) {
     sendError(`Error getting NFT for message ${messageId}`, res, error)
