@@ -1,6 +1,7 @@
 import { logWithTime, sendError } from '../util/controllerUtil'
 import { TX_STATUS } from '../eth/tokenEvents'
 import NFT from '../models/nft'
+import mongoose from 'mongoose'
 
 
 /**
@@ -28,7 +29,7 @@ export const addNFT = async (req, res) => {
 export const getNFT = async (req, res) => {
   const { tokenId } = req.params
   try {
-    const nft = await NFT.findById(tokenId).lean()
+    const nft = await NFT.findById(new mongoose.Types.ObjectId(`${tokenId}`)).lean()
     if (nft) {
       res.send(nft)
     } else {
