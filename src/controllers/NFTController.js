@@ -1,7 +1,6 @@
 import { logWithTime, sendError } from '../util/controllerUtil'
 import { TX_STATUS } from '../eth/tokenEvents'
 import NFT from '../models/nft'
-import mongoose from 'mongoose'
 
 
 /**

@@ -3,7 +3,6 @@ import { HARMONIZE, HARMONIZE_ADDRESS } from '../abi/Harmonize'
 import Owner from '../models/owner'
 import NFT from '../models/nft'
 import { logErrorWithTime, logWithTime } from '../util/controllerUtil'
-import mongoose from 'mongoose'
 import { addMessageTokenId } from '../controllers/SocialServiceController'
 export const TX_STATUS = {
   NONE: 0,
@@ -147,7 +146,7 @@ const processNFTTransfer = async (event) => {
     if (from != 0) {
       update.price = 0
     }
-    const nft = await NFT.findByIdAndUpdate(new mongoose.Types.ObjectId(`${tokenId}`), update)
+    const nft = await NFT.findOneAndUpdate({tokenId}, update)
     if (!nft) {
       logErrorWithTime(`processTransfer FAILED unable to find NFT for ${tokenId}`)
     } else if (from == 0) {
