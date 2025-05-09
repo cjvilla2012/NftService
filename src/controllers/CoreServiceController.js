@@ -15,7 +15,7 @@ const getCoreServiceOptions = () => {
  *@returns accessToken
 */
 export const verifyUserId = async (userId) => {
-    logWithTime(`verifyUser ${userId}`)
+    //logWithTime(`verifyUser ${userId}`)
     let accessToken
     try {
         const userResponse = await axios.get(`${process.env.USER_AUTH_API}/${userId}`,
@@ -23,7 +23,7 @@ export const verifyUserId = async (userId) => {
         const { data } = userResponse
         if (data) {
             accessToken = data.accessToken
-            logWithTime(`verifyUser got accessToken ${accessToken}`)
+            //logWithTime(`verifyUser got accessToken ${accessToken}`)
         }
     } catch (error) {
         if (error.message) {

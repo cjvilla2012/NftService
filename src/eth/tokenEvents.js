@@ -3,6 +3,8 @@ import { HARMONIZE, HARMONIZE_ADDRESS } from '../abi/Harmonize'
 import Owner from '../models/owner'
 import NFT from '../models/nft'
 import { logErrorWithTime, logWithTime } from '../util/controllerUtil'
+import mongoose from 'mongoose'
+import { addMessageTokenId } from '../controllers/SocialServiceController'
 export const TX_STATUS = {
   NONE: 0,
   STARTED: 1,
@@ -129,6 +131,10 @@ const setPrice = async (event) => {
  * 
  * In the event, "address" is the contract address. The owner of the
  * token is the "to" field in the returnValues. The "from" field for a mint is 0.
+ * 
+ * After a successful mint the Social Service is called to add the tokenId to the
+ * associated Message identified in this service nft document.
+ * 
  * @param {*} event 
  */
 const processNFTTransfer = async (event) => {
@@ -141,9 +147,12 @@ const processNFTTransfer = async (event) => {
     if (from != 0) {
       update.price = 0
     }
-    const nft = await NFT.findByIdAndUpdate(tokenId, update)
+    const nft = await NFT.findByIdAndUpdate(new mongoose.Types.ObjectId(`${tokenId}`), update)
     if (!nft) {
       logErrorWithTime(`processTransfer FAILED unable to find NFT for ${tokenId}`)
+    } else if (from == 0) {
+      const { messageId } = nft
+      await addMessageTokenId(messageId, tokenId)
     }
   } catch (error) {
     logErrorWithTime('processTransfer FAILED', error)
