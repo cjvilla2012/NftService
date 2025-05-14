@@ -93,7 +93,7 @@ const saveShareEvent = async (event) => {
     if (!owner) {
       logErrorWithTime(`saveShareEvent FAILED unable to update owner ${sender} for ${tokenId}`, error)
     } else if (eventType == 1) {
-      const nft = await NFT.findByIdAndDelete(tokenId, { offerPrice: pricePerShare })
+      const nft = await NFT.findOneAndDelete({tokenId}, { offerPrice: pricePerShare })
       if (!nft) {
         logErrorWithTime()`Unable to set offer price ${pricePerShare} for ${tokenId}: ${JSON.stringify(error)}`
       }
@@ -113,7 +113,7 @@ const setPrice = async (event) => {
   const { tokenId, owner, price } = returnValues
   logWithTime(`setPrice token ${tokenId} price ${price} owner ${owner}`)
   try {
-    const nft = await NFT.findByIdAndUpdate(tokenId, { price })
+    const nft = await NFT.findOneAndUpdate({tokenId}, { price })
     if (!nft) {
       logErrorWithTime(`setPrice FAILED to update NFT ${tokenId} with price ${price}`, error)
     }
