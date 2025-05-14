@@ -91,8 +91,8 @@ export const setSharePrice = async (req, res) => {
 export const startNFTTransaction = async (req, res) => {
   const { tokenId, txHash } = req.body
   try {
-    const nft = await NFT.findByIdAndUpdate(
-      tokenId,
+    const nft = await NFT.findOneAndUpdate(
+      {tokenId},
       { txHash, txStatus: TX_STATUS.STARTED },
       {
         new: true,
