@@ -10,7 +10,7 @@ import { TX_STATUS } from '../eth/tokenEvents'
  * 2) The tokenId is the uint256 HEX string that is the NFT token ID. This should be created
  *    from a UUID on the client side.
  * 3) The mediaHash is the SHA256 of the associated media, even if the media is not cold stored
-  4) The Sale price
+  4) The Sale price in Gwei
   5) The tokenId is referenced in the Social Service Message that defines the media
   6) The NFT creator User (as defined in the Core Service) and current owner User 
      are stored in the nft table
@@ -45,8 +45,8 @@ const nftSchema = new mongoose.Schema(
       type: String,
     },
     owner: { type: Schema.Types.ObjectId, ref: 'Owner', index: true },
-    price: {
-      type: Number,
+    price: {//Sale price in Gwei
+      type: String,
     },
     offerPrice: {
       //Most recent partner offering share price in eth for an issue. Display purposes only

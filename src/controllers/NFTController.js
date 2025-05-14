@@ -4,7 +4,7 @@ import NFT from '../models/nft'
 
 
 /**
- * 
+ * The price must be a Gwei string
  * @param {*} req 
  * @param {*} res 
  */

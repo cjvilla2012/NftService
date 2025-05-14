@@ -93,7 +93,7 @@ const saveShareEvent = async (event) => {
     if (!owner) {
       logErrorWithTime(`saveShareEvent FAILED unable to update owner ${sender} for ${tokenId}`, error)
     } else if (eventType == 1) {
-      const nft = await NFT.findOneAndDelete({tokenId}, { offerPrice: pricePerShare })
+      const nft = await NFT.findOneAndDelete({ tokenId }, { offerPrice: pricePerShare })
       if (!nft) {
         logErrorWithTime()`Unable to set offer price ${pricePerShare} for ${tokenId}: ${JSON.stringify(error)}`
       }
@@ -105,7 +105,8 @@ const saveShareEvent = async (event) => {
 }
 
 /**
- *Set the new price for a token
+ *Set the new price for a token. The price in the event is in wei. This is converted
+ to Gwei for storing in the nft document.
  * @param {*} event
  */
 const setPrice = async (event) => {
@@ -113,7 +114,9 @@ const setPrice = async (event) => {
   const { tokenId, owner, price } = returnValues
   logWithTime(`setPrice token ${tokenId} price ${price} owner ${owner}`)
   try {
-    const nft = await NFT.findOneAndUpdate({tokenId}, { price })
+    const web3 = getWssProvider()
+    const priceInGwei = web3.utils.fromWei(price, 'gwei')
+    const nft = await NFT.findOneAndUpdate({ tokenId }, { price: `${priceInGwei}` })
     if (!nft) {
       logErrorWithTime(`setPrice FAILED to update NFT ${tokenId} with price ${price}`, error)
     }
@@ -144,9 +147,9 @@ const processNFTTransfer = async (event) => {
   try {
     let update = { txHash, txStatus: TX_STATUS.COMPLETED }
     if (from != 0) {
-      update.price = 0
+      update.price = '0'
     }
-    const nft = await NFT.findOneAndUpdate({tokenId}, update)
+    const nft = await NFT.findOneAndUpdate({ tokenId }, update)
     if (!nft) {
       logErrorWithTime(`processTransfer FAILED unable to find NFT for ${tokenId}`)
     } else if (from == 0) {
