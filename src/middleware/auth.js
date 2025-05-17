@@ -3,7 +3,7 @@ import { logWithTime } from '../util/controllerUtil'
 
 export const verifyRequestUserId = async (req, res, next) => {
   const userId = req.headers['x-user-id']
-  logWithTime(`verifyRequestUserId ${userId}`)
+  //logWithTime(`verifyRequestUserId ${userId}`)
   if (userId) {
     try {
       let accessToken = await verifyUserId(userId)
@@ -12,7 +12,7 @@ export const verifyRequestUserId = async (req, res, next) => {
       }
       //logWithTime(`...got user ${user._id}`)
       req.accessToken = accessToken
-      req.user=userId
+      req.user = userId
       next()
 
     }
