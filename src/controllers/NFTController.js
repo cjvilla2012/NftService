@@ -59,6 +59,57 @@ export const getNFTForMessage = async (req, res) => {
     sendError(`Error getting NFT for message ${messageId}`, res, error)
   }
 }
+
+/**
+ {
+    "title": "Asset Metadata",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Identifies the asset to which this NFT represents"
+        },
+        "description": {
+            "type": "string",
+            "description": "Describes the asset to which this NFT represents"
+        },
+        "image": {
+            "type": "string",
+            "description": "A URI pointing to a resource with mime type image/* representing the asset to which this NFT represents. Consider making any images at a width between 320 and 1080 pixels and aspect ratio between 1.91:1 and 4:5 inclusive."
+        }
+    }
+}
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const getNFTMetadata = async (req, res) => {
+  const { tokenId } = req.params
+  try {
+    const nft = await NFT.findOne({ tokenId }).lean()
+    if (nft) {
+      const { name, description } = nft
+      const metadata = {
+        "title": 'Harmonize NFT', "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": name
+          },
+          "description": {
+            "type": "string",
+            "description": description
+          },
+        }
+      }
+      res.send(metadata)
+    } else {
+      sendError(`Unable to find NFT ${tokenId}`, res, undefined, 404)
+    }
+  } catch (error) {
+    sendError(`Error getting NFT ${tokenId}`, res, error)
+  }
+
+}
 /**
  * Set the share price for the specified token. Only the token Owner can do this,
  * and so the signed-in user Id must match the nft owner Id.
@@ -92,7 +143,7 @@ export const startNFTTransaction = async (req, res) => {
   const { tokenId, txHash } = req.body
   try {
     const nft = await NFT.findOneAndUpdate(
-      {tokenId},
+      { tokenId },
       { txHash, txStatus: TX_STATUS.STARTED },
       {
         new: true,

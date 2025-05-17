@@ -14,6 +14,7 @@ import {
   addNFT,
   getNFT,
   getNFTForMessage,
+  getNFTMetadata,
   setSharePrice,
   startNFTTransaction,
 } from './controllers/NFTController'
@@ -147,7 +148,7 @@ app.use(function (err, req, res, next) {
 })
 
 /** This is the ERC721 metadata endpoint -- public and no auth required */
-app.get('/nft/:tokenId',  getNFT)
+app.get('/nft/:tokenId',  getNFTMetadata)
 
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
 app.get('/api/nft/get/:tokenId', [verifyRequestUserId], getNFT)
