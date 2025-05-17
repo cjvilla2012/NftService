@@ -75,7 +75,7 @@ app.use(function (req, res, next) {
   }
   res.header(
     'Access-Control-Allow-Headers',
-    `x-api-key,service-api-key,Origin, Content-Type, Accept`
+    `x-api-key,service-api-key,x-user-id,Origin, Content-Type, Accept`
   )
   next()
 })
