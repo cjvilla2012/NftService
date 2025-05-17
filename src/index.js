@@ -146,6 +146,9 @@ app.use(function (err, req, res, next) {
   next(err)
 })
 
+/** This is the ERC721 metadata endpoint -- public and no auth required */
+app.get('/nft/:tokenId',  getNFT)
+
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
 app.get('/api/nft/get/:tokenId', [verifyRequestUserId], getNFT)
 app.get('/api/nft/getByMessage/:messageId', [verifyRequestUserId], getNFTForMessage)

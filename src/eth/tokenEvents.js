@@ -126,6 +126,36 @@ const setPrice = async (event) => {
 }
 
 /**
+ * If there is not an Owner with ownerAddress,
+ * the Owner is created with a (Harmonize) user of the creatorUserId in the nft document.
+ * If there is an Owner, no changes are made to it. The (new or existing Owner) is set 
+ * as the owner field of the nft document. 
+ * 
+ * If there is not an Owner with ownerAddress, and
+ * there is no nft for tokenId, the error is logged, and a new Owner without a user
+ * is created.
+ * @param {*} tokenId 
+ * @param {*} ownerAddress 
+ */
+const createOrUpdateOwner = async (tokenId, ownerAddress) => {
+  let owner = await Owner.findOne({ address: ownerAddress }).lean()
+  if (!owner) {
+    const nft = await NFT.findOne({ tokenId }).lean()
+    if (nft) {
+      const { creatorUserId } = nft
+      owner = await Owner.create({ address: ownerAddress, user: creatorUserId })
+    } else {
+      logErrorWithTime(`WARNING: No NFT found for ${tokenId}, owner still created for ${ownerAddress}`)
+      await Owner.create({ address: ownerAddress })
+      owner = undefined
+    }
+  }
+  if (owner) {
+    await NFT.findOneAndUpdate({ tokenId }, { owner })
+  }
+}
+
+/**
  * Given the single tokenId contained in event.returnValues, find the associated NFT,
  * then update it with the to address and txHash. If the NFT cannot be found then there may be
  * an orphaned NFT, meaning an NFT was created but no matching token. Orphaned Assets can be found
@@ -134,8 +164,20 @@ const setPrice = async (event) => {
  * In the event, "address" is the contract address. The owner of the
  * token is the "to" field in the returnValues. The "from" field for a mint is 0.
  * 
- * After a successful mint the Social Service is called to add the tokenId to the
+ * Minting
+ * =======
+ * 
+ * When a token is minted, if there is not an Owner with the "to" address,
+ * the Owner is created with a (Harmonize) user of the creatorUserId in the nft document.
+ * If there is an Owner, no changes are made to it. The (new or existing Owner) is set 
+ * as the owner field of the nft document. The Social Service is called to add the tokenId to the
  * associated Message identified in this service nft document.
+ * 
+ * Transfer (Purchase or Transfer)
+ * ===============================
+ * 
+ * Using the "to" address, an Owner is either found or created. The nft identified by the tokenId
+ * is then updated with this owner.
  * 
  * @param {*} event 
  */
@@ -151,13 +193,21 @@ const processNFTTransfer = async (event) => {
     }
     const nft = await NFT.findOneAndUpdate({ tokenId }, update)
     if (!nft) {
-      logErrorWithTime(`processTransfer FAILED unable to find NFT for ${tokenId}`)
-    } else if (from == 0) {
-      const { messageId } = nft
-      await addMessageTokenId(messageId, tokenId)
+      logErrorWithTime(`processNFTTransfer FAILED unable to find NFT for ${tokenId}`)
+    } else {
+      await createOrUpdateOwner(tokenId, to)
+      if (from == 0) {
+        //MINT
+        await createOrUpdateOwner(tokenId, to)
+        const { messageId } = nft
+        await addMessageTokenId(messageId, tokenId)
+      } else if (to != 0) {
+        //TRANSFER from->to
+        await createOrUpdateOwner(tokenId, to)
+      }
     }
   } catch (error) {
-    logErrorWithTime('processTransfer FAILED', error)
+    logErrorWithTime('processNFTTransfer FAILED', error)
   }
 }
 
