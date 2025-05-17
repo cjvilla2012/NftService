@@ -89,18 +89,11 @@ export const getNFTMetadata = async (req, res) => {
     if (nft) {
       const { name, description } = nft
       const metadata = {
-        "title": 'Harmonize NFT', "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": name
-          },
-          "description": {
-            "type": "string",
-            "description": description
-          },
-        }
+        "name": name,
+        "description": description,
+        "image": "https://harmonize.social/harmonize512.png"
       }
+
       res.send(metadata)
     } else {
       sendError(`Unable to find NFT ${tokenId}`, res, undefined, 404)
