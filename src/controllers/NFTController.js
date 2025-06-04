@@ -103,27 +103,6 @@ export const getNFTMetadata = async (req, res) => {
   }
 
 }
-/**
- * Set the share price for the specified token. Only the token Owner can do this,
- * and so the signed-in user Id must match the nft owner Id.
- * @param {*} req {sharePrice,tokenId}
- * @param {*} res Returns updated NFT, 500 if not found and other things
- */
-export const setSharePrice = async (req, res) => {
-  const { user } = req
-  const { sharePrice, tokenId } = req.body
-  logWithTime(`setSharePrice ${sharePrice} for ${tokenId} user ${user}`)
-  try {
-    const nft = await NFT.findOneAndUpdate({ tokenId, owner: user }, { sharePrice }, { new: true })
-    if (nft) {
-      res.send(nft)
-    } else {
-      sendError(`Unable to update share price ${sharePrice} for ${tokenId}`, res)
-    }
-  } catch (error) {
-    sendError(`Unable to set share price ${sharePrice} for ${tokenId}`, res, error)
-  }
-}
 
 /**
  * The user who owns the specified NFT has started to mint. This method

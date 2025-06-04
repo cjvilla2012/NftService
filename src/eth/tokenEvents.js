@@ -65,46 +65,6 @@ const savePayment = async (event) => {
 }
 
 /**
- * Save the ShareEvent to the Owner specified by the sender address.
- * The Owner is created if it does not exist.
- *
- * For eventType 1 (a partner is offering shares for sale), we also update the offer price
- * @param {*} event
- */
-const saveShareEvent = async (event) => {
-  const { transactionHash: txHash, returnValues } = event
-  const { sender, eventType, tokenOwner, tokenId, numShares, pricePerShare } =
-    returnValues
-  const options = { upsert: true, new: true, setDefaultsOnInsert: true }
-  const shareEvent = {
-    eventType,
-    tokenOwner,
-    tokenId,
-    numShares,
-    pricePerShare,
-    txHash,
-  }
-  try {
-    const owner = await Owner.findByIdAndUpdate(
-      { address: sender },
-      { $push: { shares: shareEvent } },
-      options
-    )
-    if (!owner) {
-      logErrorWithTime(`saveShareEvent FAILED unable to update owner ${sender} for ${tokenId}`, error)
-    } else if (eventType == 1) {
-      const nft = await NFT.findOneAndDelete({ tokenId }, { offerPrice: pricePerShare })
-      if (!nft) {
-        logErrorWithTime()`Unable to set offer price ${pricePerShare} for ${tokenId}: ${JSON.stringify(error)}`
-      }
-    }
-
-  } catch (error) {
-    logErrorWithTime(`saveShareEvent FAILED for ${tokenId}`, error)
-  }
-}
-
-/**
  *Set the new price for a token. The price in the event is in wei. This is converted
  to Gwei for storing in the nft document.
  * @param {*} event
@@ -306,32 +266,5 @@ export const listenForNFTSetPrice = () => {
       }
     })
 }
-export const listenForNFTPartnerShareEvents = () => {
-  console.log(`\n*** listenForNFTPartnerShareEvents at ${HARMONIZE_ADDRESS}`)
-  const web3 = getWssProvider()
-  const harmonizeContract = new web3.eth.Contract(HARMONIZE.abi, HARMONIZE_ADDRESS)
-  harmonizeContract.events
-    .ShareEvent()
-    .on('connected', function (subscriptionId) {
-      console.log(`*** listenForNFTPartnerShareEvents subscription ${subscriptionId}`)
-    })
-    .on('data', async function (event) {
-      //console.log('\n*** listenForNFTPartnerShareEvents got data', event)
-      saveShareEvent(event, web3)
-    })
 
-    .on('error', function (error) {
-      const { code } = error
-      if (code === 1006) {
-        logWithTime('***Restarting ShareEvent listener...\n')
-        listenForNFTPartnerShareEvents()
-      } else {
-        logErrorWithTime(
-          `\n*** ERROR listenForNFTPartnerShareEvents, code ${code} restarting...`,
-          error
-        )
-        listenForNFTPartnerShareEvents()
-      }
-    })
-}
 

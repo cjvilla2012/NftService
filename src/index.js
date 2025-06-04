@@ -15,7 +15,6 @@ import {
   getNFT,
   getNFTForMessage,
   getNFTMetadata,
-  setSharePrice,
   startNFTTransaction,
 } from './controllers/NFTController'
 
@@ -27,7 +26,6 @@ import {
 import {
   listenForNFTPayment,
   listenForNFTSetPrice,
-  listenForNFTPartnerShareEvents,
   listenForNFTTransfer,
   WSS_PROVIDER_URL,
 } from './eth/tokenEvents'
@@ -153,7 +151,6 @@ app.get('/nft/:tokenId',  getNFTMetadata)
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
 app.get('/api/nft/get/:tokenId', [verifyRequestUserId], getNFT)
 app.get('/api/nft/getByMessage/:messageId', [verifyRequestUserId], getNFTForMessage)
-app.post('/api/nft/sharePrice', [verifyRequestUserId], setSharePrice)
 
 app.post(
   '/api/nft/startNFTTransaction',
@@ -188,7 +185,6 @@ connectDb().then(async () => {
     listenForNFTTransfer()
     listenForNFTSetPrice()
     listenForNFTPayment()
-    listenForNFTPartnerShareEvents()
   } else {
     app.listen(process.env.PORT, async () => {
       logWithTime(
@@ -198,6 +194,5 @@ connectDb().then(async () => {
     listenForNFTTransfer()
     listenForNFTSetPrice()
     listenForNFTPayment()
-    listenForNFTPartnerShareEvents()
   }
 })

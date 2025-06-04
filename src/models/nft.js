@@ -9,12 +9,14 @@ import { TX_STATUS } from '../eth/tokenEvents'
  * 1) Reference to a Harmonize minted NFT is stored in this table
  * 2) The tokenId is the uint256 HEX string that is the NFT token ID. This should be created
  *    from a UUID on the client side.
- * 3) The mediaHash is the SHA256 of the associated media, even if the media is not cold stored
-  4) The Sale price in Gwei
-  5) The tokenId is referenced in the Social Service Message that defines the media
-  6) The NFT creator User (as defined in the Core Service) and current owner User 
+ * 3) The contractVersionNumber is the Harmonize contract version *AT THE TIME OF MINTING*.
+ *    If this is 0 *DO NOT MINT*
+ * 4) The mediaHash is the SHA256 of the associated media, even if the media is not cold stored
+  5) The Sale price in Gwei
+  6) The tokenId is referenced in the Social Service Message that defines the media
+  7) The NFT creator User (as defined in the Core Service) and current owner User 
      are stored in the nft table
-  7) Once a Message has a minted NFT, it cannot be deleted or changed in any way
+  8) Once a Message has a minted NFT, it cannot be deleted or changed in any way
 
   The creatorUserId is the Harmonize User id that created the NFT document. The
   owner is an Owner that is assigned when the Transfer event is received
@@ -37,7 +39,8 @@ const nftSchema = new mongoose.Schema(
       required: true,
       index: { unique: true }
     },
-    mediaHash:String,
+    contractVersion: { type: Number, required: true, index: true, default: 0 },
+    mediaHash: String,
     name: String,
     description: String,
     messageId: { type: String, required: true, index: { unique: true } },
@@ -48,20 +51,11 @@ const nftSchema = new mongoose.Schema(
     price: {//Sale price in Gwei
       type: String,
     },
-    offerPrice: {
-      //Most recent partner offering share price in eth for an issue. Display purposes only
-      type: Number,
-      default: undefined,
-    },
-    sharePrice: {
-      //Share price in eth for an issue. Display purposes only
-      type: Number,
-      default: undefined,
-    },
+    rights:String,
     txHash: { type: String, default: undefined }, //To get the transaction that created the token
     txStatus: { type: Number, default: TX_STATUS.NONE }, //The status of the transaction identified by txHash
   },
-  { collation: { locale: 'en', strength: 2 }},//For case-insensitive searches
+  { collation: { locale: 'en', strength: 2 } },//For case-insensitive searches
   { timestamps: true, toJSON: { virtuals: true } }
 )
 
