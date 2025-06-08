@@ -1,6 +1,13 @@
-import { logWithTime, sendError } from '../util/controllerUtil'
-import { TX_STATUS } from '../eth/tokenEvents'
+import { logErrorWithTime, logWithTime, sendError } from '../util/controllerUtil'
+import { getWssProvider, TX_STATUS } from '../eth/tokenEvents'
 import NFT from '../models/nft'
+import { addETHCreditsPayment } from './CoreServiceController'
+export const TRANSACTION_TYPE = {
+  CREDIT: 0,
+  ETH_CREDIT: 1,
+  FAILED: 99,
+  ETH_FAILED: 100
+}
 
 
 /**
@@ -104,6 +111,77 @@ export const getNFTMetadata = async (req, res) => {
 
 }
 
+const createETHPayment = (amount, userId, numCreditsPurchased, success) => {
+  return {
+    amount_received: amount,
+    currency: 'eth',
+    metadata: {
+      userId,
+      transactionType: success ? TRANSACTION_TYPE.ETH_CREDIT : TRANSACTION_TYPE.ETH_FAILED,
+      numCreditsPurchased
+    }
+  }
+}
+
+/**
+ * The client calls this method when it has started an ETH transfer and received
+ * the txHash. This method looks for a transaction receipt every 5 seconds
+ * and once there is a transaction with a matching from, to, and paymentAmount,
+ * creates a payment and sends it to the Core Service so that credits are added
+ * to the signed-in User's account.
+ * 
+ * Note:
+ * 1) We are not yet counting block confirmations
+ * 2) The maximum time we wait is 2 minutes (24 5 second intervals)
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const startETHTransaction = async (req, res) => {
+  logWithTime('startETHTransaction',req.body)
+  const { paymentAmount, creditsPurchased, to, from, txHash } = req.body
+  try {
+    const web3 = getWssProvider()
+    res.sendStatus(200)
+    let count = 0
+    const intervalId = setInterval(async () => {
+      if (count < 24) {
+        count++
+        try {
+          const tx = await web3.eth.getTransactionReceipt(txHash)
+          if (tx) {
+            clearInterval(intervalId)
+            const { to: txTo, from: txFrom, value } = tx
+            if (to === txTo && from === txFrom && value == paymentAmount) {
+              const payment = createETHPayment(paymentAmount, req.user,
+                creditsPurchased,
+                true)
+              logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, payment)
+              try {
+                await addETHCreditsPayment(payment)
+              } catch (paymentError) {
+                logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, paymentError)
+              }
+            } else {
+              logErrorWithTime(`Receipt for ${txHash} does not match requested values:
+                txTo: ${txTo} txFrom: ${txFrom} value: ${value}`,
+                req.body)
+            }
+          }
+        } catch (err) {
+          clearInterval(intervalId)
+          logErrorWithTime(`Error awaiting transaction receipt for ${txHash}`, err)
+        }
+      } else {
+        clearInterval(intervalId)
+        logErrorWithTime(`Timed out attempting to get ETH transaction for ${txHash}`)
+      }
+    }, 5000)
+
+  } catch (error) {
+    sendError(`Error starting ETH transaction for ${txHash}`, res, error)
+  }
+
+}
 /**
  * The user who owns the specified NFT has started to mint. This method
  * receives the txHash and using the tokenId updates the NFT with
@@ -119,6 +197,7 @@ export const startNFTTransaction = async (req, res) => {
       { txHash, txStatus: TX_STATUS.STARTED },
       {
         new: true,
+
       })
     if (nft) {
       res.sendStatus(200)

@@ -15,6 +15,7 @@ import {
   getNFT,
   getNFTForMessage,
   getNFTMetadata,
+  startETHTransaction,
   startNFTTransaction,
 } from './controllers/NFTController'
 
@@ -156,6 +157,12 @@ app.post(
   '/api/nft/startNFTTransaction',
   [verifyRequestUserId],
   startNFTTransaction
+)
+
+app.post(
+  '/api/eth/startETHTransaction',
+  [verifyRequestUserId],
+  startETHTransaction
 )
 
 app.get('/api/owners/payments/:address', getPayments)
