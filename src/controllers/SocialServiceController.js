@@ -34,7 +34,7 @@ export const processAxiosException = (error, prefix = 'AI Engine') => {
 export const addMessageTokenId = async (messageId, tokenId) => {
     logWithTime(`addMessageTokenId ${messageId} tokenId ${tokenId}`)
     try {
-        const response = await axios.post(`${process.env.ADD_MESSAGE_TOKEN_ID_API}`, 
+        const response = await axios.post(process.env.ADD_MESSAGE_TOKEN_ID_API, 
             { messageId, tokenId }, {
             headers: {
                 'service-api-key': process.env.SERVICE_API_KEY

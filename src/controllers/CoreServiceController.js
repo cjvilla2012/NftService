@@ -32,7 +32,7 @@ const getCoreServiceOptions = () => {
 export const addETHCreditsPayment = async (payment) => {
     logWithTime('addETHCreditsPayment', payment)
     try {
-        const response = await axios.post(`${process.env.ADD_ETH_CREDITS_PAYMENT_API}`,
+        const response = await axios.post(process.env.ADD_ETH_CREDITS_PAYMENT_API,
             payment, {
             headers: {
                 'service-api-key': process.env.SERVICE_API_KEY
