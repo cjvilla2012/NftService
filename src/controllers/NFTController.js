@@ -180,7 +180,7 @@ export const startETHTransaction = async (req, res) => {
             if (to.toLowerCase() === txTo.toLowerCase()
               && from.toLowerCase() === txFrom.toLowerCase()) {
               try {
-                payment.transactionType = TRANSACTION_TYPE.ETH_CREDIT
+                payment.metadata.transactionType = TRANSACTION_TYPE.ETH_CREDIT
                 await addETHCreditsPayment(payment)
               } catch (paymentError) {
                 logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, paymentError)
