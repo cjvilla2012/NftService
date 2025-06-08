@@ -152,6 +152,7 @@ const createETHPayment = (amount, userId, numCreditsPurchased, txHash,
 export const startETHTransaction = async (req, res) => {
   logWithTime('startETHTransaction', req.body)
   const { paymentAmount, creditsPurchased, to, from, txHash } = req.body
+  let count = 0, success
   try {
     const web3 = getWssProvider()
     try {
@@ -160,7 +161,6 @@ export const startETHTransaction = async (req, res) => {
         txHash,
         TRANSACTION_TYPE.ETH_STARTED)
       await addETHCreditsPayment(payment)
-      let count = 0,success
       const intervalId = setInterval(async () => {
         if (count < 24) {
           count++
