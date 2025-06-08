@@ -45,7 +45,7 @@ export const addETHCreditsPayment = async (payment) => {
             throw new Error(`CoreService addETHCreditsPayment FAILED ${response.status}: ${response.message}`)
         }
     } catch (error) {
-        console.error('addETHCreditsPayment FAILED',error)
+        console.error('addETHCreditsPayment FAILED', processAxiosException(error, 'addETHCreditsPayment'))
         /*
         throw new Error(processAxiosException(error, 'addETHCreditsPayment'),
             { cause: error })
