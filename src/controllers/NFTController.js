@@ -167,10 +167,10 @@ export const startETHTransaction = async (req, res) => {
           const tx = await web3.eth.getTransactionReceipt(txHash)
           if (tx) {
             clearInterval(intervalId)
-            const { to: txTo, from: txFrom, value } = tx
-            if (to === txTo && from === txFrom && value == paymentAmount) {
-              logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, payment)
-              try {
+            logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, tx)
+            const { to: txTo, from: txFrom } = tx
+            if (to === txTo && from === txFrom) {
+               try {
                 payment.transactionType = TRANSACTION_TYPE.ETH_CREDIT
                 await addETHCreditsPayment(payment)
                 success = true
@@ -179,7 +179,7 @@ export const startETHTransaction = async (req, res) => {
               }
             } else {
               logErrorWithTime(`Receipt for ${txHash} does not match requested values:
-                txTo: ${txTo} txFrom: ${txFrom} value: ${value}`,
+                txTo: ${txTo} txFrom: ${txFrom} `,
                 req.body)
             }
           }
