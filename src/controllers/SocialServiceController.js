@@ -12,7 +12,7 @@ export const processAxiosException = (error, prefix = 'AI Engine') => {
         if (error.code === 'ECONNABORTED') {
             errorMessage += ': timeout'
         } else if (error.status) {
-            errorMessage += ` with status code ${status}`
+            errorMessage += ` with status code ${error.status}`
         }
     }
     return errorMessage
