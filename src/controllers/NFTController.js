@@ -148,6 +148,9 @@ const sendFailedTransaction = async (payment) => {
  * creates a payment and sends it to the Core Service so that credits are added
  * to the signed-in User's account.
  * 
+ * When comparing the request to and from to the receipt to and from, we convert
+ * toLowerCase because (e.g.) the Web3 clients gives us UPPERCASE addresses.
+ * 
  * Note:
  * 1) We are not yet counting block confirmations
  * 2) The maximum time we wait is 2 minutes (24 5 second intervals)
@@ -174,7 +177,8 @@ export const startETHTransaction = async (req, res) => {
             clearInterval(intervalId)
             logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, tx)
             const { to: txTo, from: txFrom } = tx
-            if (to == txTo && from == txFrom) {
+            if (to.toLowerCase() === txTo.toLowerCase()
+              && from.toLowerCase() === txFrom.toLowerCase()) {
               try {
                 payment.transactionType = TRANSACTION_TYPE.ETH_CREDIT
                 await addETHCreditsPayment(payment)
@@ -186,7 +190,7 @@ export const startETHTransaction = async (req, res) => {
               logErrorWithTime(`Receipt for ${txHash} does not match requested values:
                 to ${to} txTo: ${txTo} from ${from} txFrom: ${txFrom} `,
                 req.body)
-                await sendFailedTransaction(payment)
+              await sendFailedTransaction(payment)
             }
           }
         } catch (err) {
