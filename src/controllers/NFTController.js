@@ -170,7 +170,7 @@ export const startETHTransaction = async (req, res) => {
             logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, tx)
             const { to: txTo, from: txFrom } = tx
             if (to === txTo && from === txFrom) {
-               try {
+              try {
                 payment.transactionType = TRANSACTION_TYPE.ETH_CREDIT
                 await addETHCreditsPayment(payment)
                 success = true
@@ -193,7 +193,8 @@ export const startETHTransaction = async (req, res) => {
       }
     }, 5000)
     if (!success) {
-      payment.transactionType = TRANSACTION_TYPE.ETH_FAILED
+      payment.metadata.transactionType = TRANSACTION_TYPE.ETH_FAILED
+      logErrorWithTime(`startETHTransaction failed for ${txHash}, calling Core Service with ETH_FAILED`, payment)
       await addETHCreditsPayment(payment)
     }
   } catch (error) {
