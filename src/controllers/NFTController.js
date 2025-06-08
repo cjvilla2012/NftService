@@ -136,6 +136,11 @@ const createETHPayment = (amount, userId, numCreditsPurchased, txHash,
   }
 }
 
+const sendFailedTransaction = async (payment) => {
+  payment.metadata.transactionType = TRANSACTION_TYPE.ETH_FAILED
+  logErrorWithTime(`sendFailedTransaction`, payment)
+  await addETHCreditsPayment(payment)
+}
 /**
  * The client calls this method when it has started an ETH transfer and received
  * the txHash. This method looks for a transaction receipt every 5 seconds
@@ -152,7 +157,7 @@ const createETHPayment = (amount, userId, numCreditsPurchased, txHash,
 export const startETHTransaction = async (req, res) => {
   logWithTime('startETHTransaction', req.body)
   const { paymentAmount, creditsPurchased, to, from, txHash } = req.body
-  let count = 0, success
+  let count = 0
   let payment = createETHPayment(paymentAmount, req.user,
     creditsPurchased,
     txHash,
@@ -169,34 +174,33 @@ export const startETHTransaction = async (req, res) => {
             clearInterval(intervalId)
             logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, tx)
             const { to: txTo, from: txFrom } = tx
-            if (to === txTo && from === txFrom) {
+            if (to == txTo && from == txFrom) {
               try {
                 payment.transactionType = TRANSACTION_TYPE.ETH_CREDIT
                 await addETHCreditsPayment(payment)
-                success = true
               } catch (paymentError) {
                 logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, paymentError)
+                await sendFailedTransaction(payment)
               }
             } else {
               logErrorWithTime(`Receipt for ${txHash} does not match requested values:
-                txTo: ${txTo} txFrom: ${txFrom} `,
+                to ${to} txTo: ${txTo} from ${from} txFrom: ${txFrom} `,
                 req.body)
+                await sendFailedTransaction(payment)
             }
           }
         } catch (err) {
           clearInterval(intervalId)
           logErrorWithTime(`Error awaiting transaction receipt for ${txHash}`, err)
+          await sendFailedTransaction(payment)
         }
       } else {
         clearInterval(intervalId)
         logErrorWithTime(`Timed out attempting to get ETH transaction for ${txHash}`)
+        await sendFailedTransaction(payment)
       }
     }, 5000)
-    if (!success) {
-      payment.metadata.transactionType = TRANSACTION_TYPE.ETH_FAILED
-      logErrorWithTime(`startETHTransaction failed for ${txHash}, calling Core Service with ETH_FAILED`, payment)
-      await addETHCreditsPayment(payment)
-    }
+
   } catch (error) {
     sendError(`Error starting ETH transaction for ${txHash}`, res, error)
   }
