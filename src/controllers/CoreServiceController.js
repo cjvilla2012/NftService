@@ -9,6 +9,26 @@ const getCoreServiceOptions = () => {
         }
     }
 }
+
+/**
+ * The first time this is called transactionType must be ETH_STARTED.
+ * This causes the Core Service to create a Transaction.
+ * 
+ * Subsequent calls with the same txHash should be:
+ * 1) ETH_CREDIT. Causes Credits to be added on Core Service
+ * 2) ETH_FAILED. No Credits
+ * 
+ * Payment is:
+ * {amount_received,
+    currency,
+    txHash,
+    metadata: {
+      userId,
+      transactionType,
+      numCreditsPurchased
+    }
+ * @param {*} payment 
+ */
 export const addETHCreditsPayment = async (payment) => {
     logWithTime('addETHCreditsPayment', payment)
     try {

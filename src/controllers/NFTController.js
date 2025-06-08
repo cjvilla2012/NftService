@@ -4,7 +4,8 @@ import NFT from '../models/nft'
 import { addETHCreditsPayment } from './CoreServiceController'
 export const TRANSACTION_TYPE = {
   CREDIT: 0,
-  ETH_CREDIT: 1,
+  ETH_STARTED:1,
+  ETH_CREDIT: 2,
   FAILED: 99,
   ETH_FAILED: 100
 }
@@ -111,13 +112,25 @@ export const getNFTMetadata = async (req, res) => {
 
 }
 
-const createETHPayment = (amount, userId, numCreditsPurchased, success) => {
+/**
+ * 
+ * @param {*} amount 
+ * @param {*} userId 
+ * @param {*} numCreditsPurchased 
+ * @param {*} txHash 
+ * @param {*} transactionType 
+ * @returns 
+ */
+const createETHPayment = (amount, userId, numCreditsPurchased, txHash,
+  transactionType
+) => {
   return {
     amount_received: amount,
     currency: 'eth',
+    txHash,
     metadata: {
       userId,
-      transactionType: success ? TRANSACTION_TYPE.ETH_CREDIT : TRANSACTION_TYPE.ETH_FAILED,
+      transactionType,
       numCreditsPurchased
     }
   }
@@ -137,48 +150,58 @@ const createETHPayment = (amount, userId, numCreditsPurchased, success) => {
  * @param {*} res 
  */
 export const startETHTransaction = async (req, res) => {
-  logWithTime('startETHTransaction',req.body)
+  logWithTime('startETHTransaction', req.body)
   const { paymentAmount, creditsPurchased, to, from, txHash } = req.body
   try {
     const web3 = getWssProvider()
-    res.sendStatus(200)
-    let count = 0
-    const intervalId = setInterval(async () => {
-      if (count < 24) {
-        count++
-        try {
-          const tx = await web3.eth.getTransactionReceipt(txHash)
-          if (tx) {
-            clearInterval(intervalId)
-            const { to: txTo, from: txFrom, value } = tx
-            if (to === txTo && from === txFrom && value == paymentAmount) {
-              const payment = createETHPayment(paymentAmount, req.user,
-                creditsPurchased,
-                true)
-              logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, payment)
-              try {
-                await addETHCreditsPayment(payment)
-              } catch (paymentError) {
-                logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, paymentError)
-              }
-            } else {
-              logErrorWithTime(`Receipt for ${txHash} does not match requested values:
+    try {
+      let payment = createETHPayment(paymentAmount, req.user,
+        creditsPurchased,
+        txHash,
+        TRANSACTION_TYPE.ETH_STARTED)
+      await addETHCreditsPayment(payment)
+      let count = 0,success
+      const intervalId = setInterval(async () => {
+        if (count < 24) {
+          count++
+          try {
+            const tx = await web3.eth.getTransactionReceipt(txHash)
+            if (tx) {
+              clearInterval(intervalId)
+              const { to: txTo, from: txFrom, value } = tx
+              if (to === txTo && from === txFrom && value == paymentAmount) {
+                logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, payment)
+                try {
+                  payment.transactionType=TRANSACTION_TYPE.ETH_CREDIT
+                  await addETHCreditsPayment(payment)
+                  success=true
+                } catch (paymentError) {
+                  logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, paymentError)
+                }
+              } else {
+                logErrorWithTime(`Receipt for ${txHash} does not match requested values:
                 txTo: ${txTo} txFrom: ${txFrom} value: ${value}`,
-                req.body)
+                  req.body)
+              }
             }
+          } catch (err) {
+            clearInterval(intervalId)
+            logErrorWithTime(`Error awaiting transaction receipt for ${txHash}`, err)
           }
-        } catch (err) {
+        } else {
           clearInterval(intervalId)
-          logErrorWithTime(`Error awaiting transaction receipt for ${txHash}`, err)
+          logErrorWithTime(`Timed out attempting to get ETH transaction for ${txHash}`)
         }
-      } else {
-        clearInterval(intervalId)
-        logErrorWithTime(`Timed out attempting to get ETH transaction for ${txHash}`)
-      }
-    }, 5000)
-
+      }, 5000)
+    } catch (startTxError) {
+      logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, startTxError)
+    }
   } catch (error) {
     sendError(`Error starting ETH transaction for ${txHash}`, res, error)
+  }
+  if(!success) {
+    payment.transactionType = TRANSACTION_TYPE.ETH_FAILED
+    await addETHCreditsPayment(payment)
   }
 
 }
