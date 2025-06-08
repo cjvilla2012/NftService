@@ -46,8 +46,10 @@ export const addETHCreditsPayment = async (payment) => {
         }
     } catch (error) {
         console.error('addETHCreditsPayment FAILED')
+        /*
         throw new Error(processAxiosException(error, 'addETHCreditsPayment'),
             { cause: error })
+             */
     }
 }
 /**

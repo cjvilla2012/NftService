@@ -4,7 +4,7 @@ import NFT from '../models/nft'
 import { addETHCreditsPayment } from './CoreServiceController'
 export const TRANSACTION_TYPE = {
   CREDIT: 0,
-  ETH_STARTED:1,
+  ETH_STARTED: 1,
   ETH_CREDIT: 2,
   FAILED: 99,
   ETH_FAILED: 100
@@ -156,52 +156,48 @@ export const startETHTransaction = async (req, res) => {
   let payment = createETHPayment(paymentAmount, req.user,
     creditsPurchased,
     txHash,
-    TRANSACTION_TYPE.ETH_STARTED)  
+    TRANSACTION_TYPE.ETH_STARTED)
   try {
     const web3 = getWssProvider()
-    try {
-      await addETHCreditsPayment(payment)
-      const intervalId = setInterval(async () => {
-        if (count < 24) {
-          count++
-          try {
-            const tx = await web3.eth.getTransactionReceipt(txHash)
-            if (tx) {
-              clearInterval(intervalId)
-              const { to: txTo, from: txFrom, value } = tx
-              if (to === txTo && from === txFrom && value == paymentAmount) {
-                logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, payment)
-                try {
-                  payment.transactionType=TRANSACTION_TYPE.ETH_CREDIT
-                  await addETHCreditsPayment(payment)
-                  success=true
-                } catch (paymentError) {
-                  logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, paymentError)
-                }
-              } else {
-                logErrorWithTime(`Receipt for ${txHash} does not match requested values:
-                txTo: ${txTo} txFrom: ${txFrom} value: ${value}`,
-                  req.body)
-              }
-            }
-          } catch (err) {
+    await addETHCreditsPayment(payment)
+    const intervalId = setInterval(async () => {
+      if (count < 24) {
+        count++
+        try {
+          const tx = await web3.eth.getTransactionReceipt(txHash)
+          if (tx) {
             clearInterval(intervalId)
-            logErrorWithTime(`Error awaiting transaction receipt for ${txHash}`, err)
+            const { to: txTo, from: txFrom, value } = tx
+            if (to === txTo && from === txFrom && value == paymentAmount) {
+              logWithTime(`startETHTransaction got transaction receipt after ${count} attempts`, payment)
+              try {
+                payment.transactionType = TRANSACTION_TYPE.ETH_CREDIT
+                await addETHCreditsPayment(payment)
+                success = true
+              } catch (paymentError) {
+                logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, paymentError)
+              }
+            } else {
+              logErrorWithTime(`Receipt for ${txHash} does not match requested values:
+                txTo: ${txTo} txFrom: ${txFrom} value: ${value}`,
+                req.body)
+            }
           }
-        } else {
+        } catch (err) {
           clearInterval(intervalId)
-          logErrorWithTime(`Timed out attempting to get ETH transaction for ${txHash}`)
+          logErrorWithTime(`Error awaiting transaction receipt for ${txHash}`, err)
         }
-      }, 5000)
-    } catch (startTxError) {
-      logErrorWithTime(`startETHTransaction for ${txHash} FAILED`, startTxError)
+      } else {
+        clearInterval(intervalId)
+        logErrorWithTime(`Timed out attempting to get ETH transaction for ${txHash}`)
+      }
+    }, 5000)
+    if (!success) {
+      payment.transactionType = TRANSACTION_TYPE.ETH_FAILED
+      await addETHCreditsPayment(payment)
     }
   } catch (error) {
     sendError(`Error starting ETH transaction for ${txHash}`, res, error)
-  }
-  if(!success) {
-    payment.transactionType = TRANSACTION_TYPE.ETH_FAILED
-    await addETHCreditsPayment(payment)
   }
 
 }
