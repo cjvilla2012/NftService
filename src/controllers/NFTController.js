@@ -148,6 +148,7 @@ export const payArtistWithETH = async (req, res) => {
       }
 
       const signedTx = await web3.eth.accounts.signTransaction(paymentTx, process.env.ETH_PAYOR_KEY)
+      logWithTime(`...signedTx`,signedTx)
       await web3.eth.sendSignedTransaction(signedTx)
         .once('transactionHash', function (hash) {
           txHash = hash
@@ -169,6 +170,7 @@ export const payArtistWithETH = async (req, res) => {
         })
         .on('error', function (error) {
           sendError(`payArtistWithETH to ${to} amount ${amountInUSD} FAILED`,
+            res,
             error
           )
         })
@@ -181,8 +183,8 @@ export const payArtistWithETH = async (req, res) => {
     } catch (error) {
       //Unexpected
       //failed(error)
-      sendError(`payArtistWithETH to ${to} amount ${amountInUSD} sendSignedTransaction FAILED`,
-        error
+      sendError(`payArtistWithETH to ${to} amount ${amountInUSD} sendSignedTransaction EXCEPTION`,
+        res, error
       )
     }
     logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} completed`)
