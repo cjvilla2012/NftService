@@ -141,7 +141,7 @@ export const payArtistWithETH = async (req, res) => {
       const paymentTx = {
         from: process.env.ETH_PAYOR,
         to,
-        value: web3.utils.toWei(priceInEth, "ether"), // Convert value to Wei
+        value: web3.utils.toWei(`${priceInEth}`, "ether"), // Convert value to Wei
         //gas: 21000,  // Estimated gas limit for a simple transaction
         //gasPrice: web3.utils.toWei("50", "gwei"),  // Gas price in Gwei
         // Optional data for smart contract interactions
