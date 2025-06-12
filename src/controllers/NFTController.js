@@ -129,7 +129,7 @@ export const getNFTMetadata = async (req, res) => {
  */
 export const payArtistWithETH = async (req, res) => {
   const { to, amountInUSD } = req.body
-  logWithTime(`payArtistWithETH to ${to} amount ${amountInEth}`)
+  logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD}`)
   if (!isAllowableIp(req)) {
     sendError(`Access disallowed`, res, undefined, 403)
   } else {
@@ -168,7 +168,7 @@ export const payArtistWithETH = async (req, res) => {
           }
         })
         .on('error', function (error) {
-          sendError(`payArtistWithETH to ${to} amount ${amountInEth} FAILED`,
+          sendError(`payArtistWithETH to ${to} amount ${amountInUSD} FAILED`,
             error
           )
         })
@@ -181,11 +181,11 @@ export const payArtistWithETH = async (req, res) => {
     } catch (error) {
       //Unexpected
       //failed(error)
-      sendError(`payArtistWithETH to ${to} amount ${amountInEth} sendSignedTransaction FAILED`,
+      sendError(`payArtistWithETH to ${to} amount ${amountInUSD} sendSignedTransaction FAILED`,
         error
       )
     }
-    logWithTime(`payArtistWithETH to ${to} amount ${amountInEth} completed`)
+    logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} completed`)
   }
 }
 
