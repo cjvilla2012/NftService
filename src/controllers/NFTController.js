@@ -135,7 +135,8 @@ export const payArtistWithETH = async (req, res) => {
   } else {
     try {
       const ethInUSD = await getETHRate('usd')
-      const priceInEth = amountInUSD / ethInUSD / 100
+      //You need to make sure there aren't more than 18 decimal places to convert to Wei
+      const priceInEth = (amountInUSD / ethInUSD / 100).toFixed(18)
       const web3 = getWssProvider()
       let txHash
       const paymentTx = {
