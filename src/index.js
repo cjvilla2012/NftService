@@ -15,6 +15,7 @@ import {
   getNFT,
   getNFTForMessage,
   getNFTMetadata,
+  payArtistWithETH,
   startETHTransaction,
   startNFTTransaction,
 } from './controllers/NFTController'
@@ -35,7 +36,7 @@ import {
   hostCanBypassCors,
   logErrorWithTime, logWithTime, 
   referrerIsLocalhost} from './util/controllerUtil'
-import { verifyRequestUserId } from './middleware/auth'
+import { verifyRequestUserId, verifyServiceApiKey } from './middleware/auth'
 const ALLOWED_USER_AGENTS = ['FreshpingBot']
 export const allowedOrigins = ['https://www.harmonize.social']
 if (process.env.ALLOW_LOCALHOST) {
@@ -152,6 +153,9 @@ app.get('/nft/:tokenId',  getNFTMetadata)
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
 app.get('/api/nft/get/:tokenId', [verifyRequestUserId], getNFT)
 app.get('/api/nft/getByMessage/:messageId', [verifyRequestUserId], getNFTForMessage)
+app.post('/api/nft/payArtistWithETH', 
+  [verifyServiceApiKey],
+  payArtistWithETH)
 
 app.post(
   '/api/nft/startNFTTransaction',

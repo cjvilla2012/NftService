@@ -1,5 +1,5 @@
 import { verifyUserId } from '../controllers/CoreServiceController'
-import { logWithTime } from '../util/controllerUtil'
+import { logErrorWithTime, logWithTime } from '../util/controllerUtil'
 
 export const verifyRequestUserId = async (req, res, next) => {
   const userId = req.headers['x-user-id']
@@ -22,6 +22,21 @@ export const verifyRequestUserId = async (req, res, next) => {
     }
   } else {
     return res.status(403).send({ message: 'Unauthorized NFT service access' })
+  }
+}
+
+export const verifyServiceApiKey = (req, res, next) => {
+  const apiKey = req.headers['service-api-key']
+  //logWithTime(`verifyServiceApiKey ${apiKey}`,req)
+  if (!apiKey) {
+    logErrorWithTime('No service API key provided')
+    return res.status(403).send({ message: 'No Service API key provided' })
+  } else if (apiKey !== process.env.SERVICE_API_KEY) {
+    logErrorWithTime(`API key ${apiKey} does not match ${process.env.SERVICE_API_KEY}`)
+    return res.status(401).send({ message: 'Service Unauthorized' })
+  } else {
+    logWithTime(`... ${apiKey} verified`, req.url)
+    next()
   }
 }
 

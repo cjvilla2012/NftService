@@ -4,6 +4,7 @@ After=mongod.service
 
 [Service]
 Environment=DEBUG="nftservice node index.js"
+Environment="NODE_ENV=production"
 ExecStart=/usr/bin/yarn start
 Restart=always
 RestartSec=10                

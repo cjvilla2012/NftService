@@ -1,7 +1,8 @@
-import { logErrorWithTime, logWithTime, sendError } from '../util/controllerUtil'
+import { isAllowableIp, logErrorWithTime, logWithTime, sendError } from '../util/controllerUtil'
 import { getWssProvider, TX_STATUS } from '../eth/tokenEvents'
 import NFT from '../models/nft'
 import { addETHCreditsPayment } from './CoreServiceController'
+import { getETHRate } from '../eth/ethUtils'
 export const TRANSACTION_TYPE = {
   CREDIT: 0,
   ETH_STARTED: 1,
@@ -110,6 +111,82 @@ export const getNFTMetadata = async (req, res) => {
     sendError(`Error getting NFT ${tokenId}`, res, error)
   }
 
+}
+
+/**
+ * Called from the Core Service to pay credits owed to the specified
+ * userId in ETH. The caller must send the ETH amount in USD.
+ * 
+ * The caller receives multiple responses:
+ * 
+ * 'Started [txHash]' 
+ * 'Confirmation [count]'
+ * 'Confirmed'
+ * 
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const payArtistWithETH = async (req, res) => {
+  const { to, amountInUSD } = req.body
+  logWithTime(`payArtistWithETH to ${to} amount ${amountInEth}`)
+  if (!isAllowableIp(req)) {
+    sendError(`Access disallowed`, res, undefined, 403)
+  } else {
+    try {
+      const ethInUSD = await getETHRate('usd')
+      const priceInEth = amountInUSD / ethInUSD / 100
+      const web3 = getWssProvider()
+      let txHash
+      const paymentTx = {
+        from: process.env.ETH_PAYOR,
+        to,
+        value: web3.utils.toWei(priceInEth, "ether"), // Convert value to Wei
+        //gas: 21000,  // Estimated gas limit for a simple transaction
+        //gasPrice: web3.utils.toWei("50", "gwei"),  // Gas price in Gwei
+        // Optional data for smart contract interactions
+      }
+
+      const signedTx = await web3.eth.accounts.signTransaction(paymentTx, process.env.ETH_PAYOR_KEY)
+      await web3.eth.sendSignedTransaction(signedTx)
+        .once('transactionHash', function (hash) {
+          txHash = hash
+          logWithTime(`payArtistWithETH received transactionHash ${txHash}`)
+          res.write(`Started ${txHash}\n`)
+        })
+        /*
+        .once('receipt', function (receipt) {
+          console.log(`payArtistWithETH received receipt ${receipt}`)
+        })
+          */
+        .on('confirmation', function ({ confirmations }) {
+          logWithTime(`...${txHash} confirmation ${confirmations}`)
+          if (confirmations > 1) {
+            return res.send('Confirmed\n')
+          } else {
+            res.write(`Confirmation ${confirmations}\n`)
+          }
+        })
+        .on('error', function (error) {
+          sendError(`payArtistWithETH to ${to} amount ${amountInEth} FAILED`,
+            error
+          )
+        })
+        .then(function (receipt) {
+          //Returned when tx is mined. This does not complete the process,
+          //because we wait for 2 confirmations
+          logWithTime(`payWithCredits ${txHash} transaction mined`, receipt)
+          //completed(receipt)
+        })
+    } catch (error) {
+      //Unexpected
+      //failed(error)
+      sendError(`payArtistWithETH to ${to} amount ${amountInEth} sendSignedTransaction FAILED`,
+        error
+      )
+    }
+    logWithTime(`payArtistWithETH to ${to} amount ${amountInEth} completed`)
+  }
 }
 
 /**
