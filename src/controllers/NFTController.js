@@ -150,7 +150,7 @@ export const payArtistWithETH = async (req, res) => {
 
       const signedTx = await web3.eth.accounts.signTransaction(paymentTx, process.env.ETH_PAYOR_KEY)
       logWithTime(`...signedTx`,signedTx)
-      await web3.eth.sendSignedTransaction(signedTx)
+      await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
         .once('transactionHash', function (hash) {
           txHash = hash
           logWithTime(`payArtistWithETH received transactionHash ${txHash}`)
