@@ -193,7 +193,6 @@ export const payArtistWithETH = async (req, res) => {
           //Returned when tx is mined. This does not complete the process,
           //because we wait for 2 confirmations
           logWithTime(`payWithCredits ${txHash} transaction mined`, receipt)
-          //completed(receipt)
         })
     } catch (error) {
       //Unexpected
