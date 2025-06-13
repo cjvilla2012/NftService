@@ -115,7 +115,7 @@ export const getNFTMetadata = async (req, res) => {
 
 /**
  * Called from the Core Service to pay credits owed to the specified
- * userId in ETH. The caller must send the ETH amount in USD.
+ * userId in ETH. The caller must send the ETH amount in USD, not inflated.
  * 
  * The caller receives multiple responses:
  * 
@@ -136,7 +136,7 @@ export const payArtistWithETH = async (req, res) => {
     try {
       const ethInUSD = await getETHRate('usd')
       //You need to make sure there aren't more than 18 decimal places to convert to Wei
-      const priceInEth = (amountInUSD / ethInUSD / 100).toFixed(18)
+      const priceInEth = (amountInUSD / ethInUSD).toFixed(18)
       const web3 = getWssProvider()
       let txHash
       const paymentTx = {
@@ -149,8 +149,8 @@ export const payArtistWithETH = async (req, res) => {
       }
 
       const signedTx = await web3.eth.accounts.signTransaction(paymentTx, process.env.ETH_PAYOR_KEY)
-      logWithTime(`...signedTx`,signedTx)
-      await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+      logWithTime(`...signedTx`, signedTx)
+      web3.eth.sendSignedTransaction(signedTx.rawTransaction)
         .once('transactionHash', function (hash) {
           txHash = hash
           logWithTime(`payArtistWithETH received transactionHash ${txHash}`)
@@ -164,7 +164,10 @@ export const payArtistWithETH = async (req, res) => {
         .on('confirmation', function (confirmations) {
           logWithTime(`...${txHash} confirmation ${confirmations}`)
           if (confirmations > 1) {
-            return res.send('Confirmed\n')
+            logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} confirmed`)
+            res.write('Confirmed\n')
+            res.end()
+            return
           } else {
             res.write(`Confirmation ${confirmations}\n`)
           }
@@ -188,7 +191,6 @@ export const payArtistWithETH = async (req, res) => {
         res, error
       )
     }
-    logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} completed`)
   }
 }
 
