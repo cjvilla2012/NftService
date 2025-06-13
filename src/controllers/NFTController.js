@@ -143,9 +143,9 @@ export const payArtistWithETH = async (req, res) => {
         from: process.env.ETH_PAYOR,
         to,
         value: web3.utils.toWei(`${priceInEth}`, "ether"), // Convert value to Wei
-        gas: 21000,  // Estimated gas limit for a simple transaction
+        gas: 21000,  // Estimated gas limit for a simple transaction. Required
+        //parameter when passed to signTransaction
         //gasPrice: web3.utils.toWei("50", "gwei"),  // Gas price in Gwei
-        // Optional data for smart contract interactions
       }
 
       const signedTx = await web3.eth.accounts.signTransaction(paymentTx, process.env.ETH_PAYOR_KEY)
@@ -161,7 +161,7 @@ export const payArtistWithETH = async (req, res) => {
           console.log(`payArtistWithETH received receipt ${receipt}`)
         })
           */
-        .on('confirmation', function ({ confirmations }) {
+        .on('confirmation', function (confirmations) {
           logWithTime(`...${txHash} confirmation ${confirmations}`)
           if (confirmations > 1) {
             return res.send('Confirmed\n')
