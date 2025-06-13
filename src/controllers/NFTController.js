@@ -150,12 +150,12 @@ export const payArtistWithETH = async (req, res) => {
 
       const signedTx = await web3.eth.accounts.signTransaction(paymentTx, process.env.ETH_PAYOR_KEY)
       logWithTime(`...signedTx`, signedTx)
-      web3.eth.sendSignedTransaction(signedTx.rawTransaction)
-        .once('transactionHash', function (hash) {
-          txHash = hash
-          logWithTime(`payArtistWithETH received transactionHash ${txHash}`)
-          res.write(`Started ${txHash}\n`)
-        })
+      const promiEvent = web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+      promiEvent.once('transactionHash', function (hash) {
+        txHash = hash
+        logWithTime(`payArtistWithETH received transactionHash ${txHash}`)
+        res.write(`Started ${txHash}\n`)
+      })
         /*
         .once('receipt', function (receipt) {
           console.log(`payArtistWithETH received receipt ${receipt}`)
@@ -163,10 +163,13 @@ export const payArtistWithETH = async (req, res) => {
           */
         .on('confirmation', function (confirmations) {
           logWithTime(`...${txHash} confirmation ${confirmations}`)
-          if (confirmations > 1) {
+          if (confirmations >= 1) {
             logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} confirmed`)
             res.write('Confirmed\n')
             res.end()
+            promiEvent.off('confirmation', function (confirmations) {
+              logWithTime(`...stopped listening for confirmations`)
+            })
             return
           } else {
             res.write(`Confirmation ${confirmations}\n`)
