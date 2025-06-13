@@ -113,6 +113,20 @@ export const getNFTMetadata = async (req, res) => {
 
 }
 
+const countConfirmations = (confirmations, res) => {
+  logWithTime(`...${txHash} confirmation ${confirmations}`)
+  if (confirmations >= 1) {
+    logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} confirmed`)
+    res.write('Confirmed\n')
+    res.end()
+    promiEvent.off('confirmation', function (confirmations, receipt, latestBlockHash) {
+      logWithTime(`...stopped listening for confirmations`)
+    })
+    return
+  } else {
+    res.write(`Confirmation ${confirmations}\n`)
+  }
+}
 /**
  * Called from the Core Service to pay credits owed to the specified
  * userId in ETH. The caller must send the ETH amount in USD, not inflated.
@@ -162,9 +176,8 @@ export const payArtistWithETH = async (req, res) => {
             logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} confirmed`)
             res.write('Confirmed\n')
             res.end()
-            promiEvent.off('confirmation', function (confirmations) {
-              logWithTime(`...stopped listening for confirmations`)
-            })
+            promiEvent.off('confirmation')
+            logWithTime(`...stopped listening for confirmations`)
             return
           } else {
             res.write(`Confirmation ${confirmations}\n`)
