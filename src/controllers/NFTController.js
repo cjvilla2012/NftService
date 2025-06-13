@@ -156,11 +156,6 @@ export const payArtistWithETH = async (req, res) => {
         logWithTime(`payArtistWithETH received transactionHash ${txHash}`)
         res.write(`Started ${txHash}\n`)
       })
-        /*
-        .once('receipt', function (receipt) {
-          console.log(`payArtistWithETH received receipt ${receipt}`)
-        })
-          */
         .on('confirmation', function (confirmations) {
           logWithTime(`...${txHash} confirmation ${confirmations}`)
           if (confirmations >= 1) {
