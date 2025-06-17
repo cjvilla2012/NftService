@@ -15,6 +15,7 @@ import {
   getNFT,
   getNFTForMessage,
   getNFTMetadata,
+  listNFTs,
   payArtistWithETH,
   startETHTransaction,
   startNFTTransaction,
@@ -153,6 +154,7 @@ app.get('/nft/:tokenId',  getNFTMetadata)
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
 app.get('/api/nft/get/:tokenId', [verifyRequestUserId], getNFT)
 app.get('/api/nft/getByMessage/:messageId', [verifyRequestUserId], getNFTForMessage)
+app.get('/api/nft/listNFTs/:start/:count', [verifyRequestUserId], listNFTs)
 app.post('/api/nft/payArtistWithETH', 
   [verifyServiceApiKey],
   payArtistWithETH)

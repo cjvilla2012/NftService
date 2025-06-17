@@ -3,6 +3,7 @@ import { getWssProvider, TX_STATUS } from '../eth/tokenEvents'
 import NFT from '../models/nft'
 import { addETHCreditsPayment } from './CoreServiceController'
 import { getETHRate } from '../eth/ethUtils'
+import Owner from '../models/owner'
 export const TRANSACTION_TYPE = {
   CREDIT: 0,
   ETH_STARTED: 1,
@@ -113,18 +114,34 @@ export const getNFTMetadata = async (req, res) => {
 
 }
 
-const countConfirmations = (confirmations, res) => {
-  logWithTime(`...${txHash} confirmation ${confirmations}`)
-  if (confirmations >= 1) {
-    logWithTime(`payArtistWithETH to ${to} amount ${amountInUSD} confirmed`)
-    res.write('Confirmed\n')
-    res.end()
-    promiEvent.off('confirmation', function (confirmations, receipt, latestBlockHash) {
-      logWithTime(`...stopped listening for confirmations`)
-    })
-    return
-  } else {
-    res.write(`Confirmation ${confirmations}\n`)
+/**
+ * List all NFTs for which the signed-in user is the Owner.
+ * @param {*} req { start, count }
+ * @param {*} res Array of NFT documents
+ */
+export const listNFTs = async (req, res) => {
+  const { start, count } = req.params
+  try {
+    const { user } = req
+    const owner = await Owner.findOne({ user }).lean()
+    if (owner) {
+      const nfts = await NFT.find({
+        owner
+      })
+        .sort({ _id: 'desc' })
+        .skip(parseInt(start))
+        .limit(parseInt(count))
+        .lean()
+      if (nfts) {
+        res.send(nfts)
+      } else {
+        sendError(`Unable to find NFTs for account ${owner.address}`, res, undefined, 404)
+      }
+    } else {
+      sendError(`The user ${req.user} does not own any NFTs`, res)
+    }
+  } catch (error) {
+    sendError(`Error getting NFTs`, res, error)
   }
 }
 /**
