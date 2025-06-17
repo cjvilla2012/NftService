@@ -51,12 +51,16 @@ const nftSchema = new mongoose.Schema(
     price: {//Sale price in Gwei
       type: String,
     },
-    rights:String,
+    rights: String,
     txHash: { type: String, default: undefined }, //To get the transaction that created the token
     txStatus: { type: Number, default: TX_STATUS.NONE }, //The status of the transaction identified by txHash
   },
-  { collation: { locale: 'en', strength: 2 } },//For case-insensitive searches
-  { timestamps: true, toJSON: { virtuals: true } }
+
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    collation: { locale: 'en', strength: 2 }//For case-insensitive searches
+  }
 )
 
 const NFT = mongoose.model('NFT', nftSchema)
