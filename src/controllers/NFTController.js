@@ -201,10 +201,13 @@ export const payArtistWithETH = async (req, res) => {
           }
         })
         .on('error', function (error) {
-          sendError(`payArtistWithETH to ${to} amount ${amountInUSD} FAILED`,
-            res,
-            error
-          )
+          //You can't use sendError here because we are streaming the writes
+          const errMessage = `payArtistWithETH to ${to} amount ${amountInUSD} FAILED`
+          logErrorWithTime(errMessage, error)
+          res.status(500)
+          res.write(errMessage)
+          res.end()
+
         })
         .then(function (receipt) {
           //Returned when tx is mined. This does not complete the process,
