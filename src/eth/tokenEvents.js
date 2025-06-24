@@ -201,10 +201,10 @@ export const listenForNFTTransfer = () => {
         listenForNFTTransfer()
       } else {
         logErrorWithTime(
-          `\n*** ERROR listenForNFTTransfer, code ${code} restarting...`,
+          `\n*** ERROR listenForNFTTransfer, code ${code} NOT restarting...`,
           error
         )
-        listenForNFTTransfer()
+        //listenForNFTTransfer()
       }
     })
 }
@@ -230,10 +230,10 @@ export const listenForNFTPayment = () => {
         listenForNFTPayment()
       } else {
         logErrorWithTime(
-          `\n*** ERROR listenForNFTPayment, code ${code} restarting...`,
+          `\n*** ERROR listenForNFTPayment, code ${code} NOT restarting...`,
           error
         )
-        listenForNFTPayment()
+        //listenForNFTPayment()
       }
     })
 }
@@ -259,10 +259,10 @@ export const listenForNFTSetPrice = () => {
         listenForNFTSetPrice()
       } else {
         logErrorWithTime(
-          `\n*** ERROR listenForNFTSetPrice, code ${code} restarting...`,
+          `\n*** ERROR listenForNFTSetPrice, code ${code} NOT restarting...`,
           error
         )
-        listenForNFTSetPrice()
+        //listenForNFTSetPrice()
       }
     })
 }
