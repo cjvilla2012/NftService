@@ -59,7 +59,7 @@ export const addETHCreditsPayment = async (payment) => {
  *@returns accessToken
 */
 export const verifyUserId = async (userId) => {
-    logWithTime(`verifyUserId ${userId}`)
+    //logWithTime(`verifyUserId ${userId}`)
     let accessToken
     try {
         const userResponse = await axios.get(`${process.env.USER_AUTH_API}/${userId}`,
@@ -67,7 +67,7 @@ export const verifyUserId = async (userId) => {
         const { data } = userResponse
         if (data) {
             accessToken = data.accessToken
-            logWithTime(`verifyUserId got accessToken ${accessToken}`)
+            //logWithTime(`verifyUserId got accessToken ${accessToken}`)
         }
     } catch (error) {
         if (error.message) {

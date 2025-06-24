@@ -3,14 +3,14 @@ import { logErrorWithTime, logWithTime } from '../util/controllerUtil'
 
 export const verifyRequestUserId = async (req, res, next) => {
   const userId = req.headers['x-user-id']
-  logWithTime(`verifyRequestUserId ${userId}`)
+  //logWithTime(`verifyRequestUserId ${userId}`)
   if (userId) {
     try {
       let accessToken = await verifyUserId(userId)
       if (!accessToken) {
         return res.status(401).send({ message: 'Unauthorized' })
       }
-      logWithTime(`...got accessToken ${accessToken}`)
+      //logWithTime(`...got accessToken ${accessToken}`)
       req.accessToken = accessToken
       req.user = userId
       next()
