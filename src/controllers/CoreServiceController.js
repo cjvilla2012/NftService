@@ -67,7 +67,7 @@ export const verifyUserId = async (userId) => {
         const { data } = userResponse
         if (data) {
             accessToken = data.accessToken
-            logWithTime(`verifyUser got accessToken ${accessToken}`)
+            logWithTime(`verifyUserId got accessToken ${accessToken}`)
         }
     } catch (error) {
         if (error.message) {

@@ -10,7 +10,7 @@ export const verifyRequestUserId = async (req, res, next) => {
       if (!accessToken) {
         return res.status(401).send({ message: 'Unauthorized' })
       }
-      logWithTime(`...got user ${user._id}`)
+      logWithTime(`...got accessToken ${accessToken}`)
       req.accessToken = accessToken
       req.user = userId
       next()
