@@ -52,7 +52,7 @@ export const getNFT = async (req, res) => {
 }
 
 /**
- * 
+ * Unauthenticated
  * @param {*} req 
  * @param {*} res nft if found, 404 if not
  */
