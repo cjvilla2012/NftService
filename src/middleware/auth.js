@@ -27,7 +27,7 @@ export const verifyRequestUserId = async (req, res, next) => {
 
 export const verifyApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key']
-  logWithTime(`verifyApiKey ${apiKey}`, req)
+  logWithTime(`verifyApiKey ${apiKey}`)
   if (!apiKey) {
     logErrorWithTime('No API key provided')
     return res.status(403).send({ message: 'No API key provided' })
