@@ -25,6 +25,21 @@ export const verifyRequestUserId = async (req, res, next) => {
   }
 }
 
+export const verifyApiKey = (req, res, next) => {
+  const apiKey = req.headers['x-api-key']
+  //logWithTime(`verifyServiceApiKey ${apiKey}`,req)
+  if (!apiKey) {
+    logErrorWithTime('No API key provided')
+    return res.status(403).send({ message: 'No API key provided' })
+  } else if (apiKey !== process.env.REACT_APP_API_KEY) {
+    logErrorWithTime(`API key ${apiKey} does not match ${process.env.REACT_APP_API_KEY}`)
+    return res.status(401).send({ message: 'Unauthorized' })
+  } else {
+    logWithTime(`... ${apiKey} verified`, req.url)
+    next()
+  }
+}
+
 export const verifyServiceApiKey = (req, res, next) => {
   const apiKey = req.headers['service-api-key']
   //logWithTime(`verifyServiceApiKey ${apiKey}`,req)

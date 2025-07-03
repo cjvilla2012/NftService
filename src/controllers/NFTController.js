@@ -114,6 +114,20 @@ export const getNFTMetadata = async (req, res) => {
 
 }
 
+const getNFTs = async (query, start, count, res) => {
+
+  const nfts = await NFT.find(query)
+    .sort({ _id: 'desc' })
+    .skip(parseInt(start))
+    .limit(parseInt(count))
+    .lean()
+  if (nfts) {
+    res.send(nfts)
+  } else {
+    sendError(`Unable to find NFTs for query ${JSON.stringify(query)}`, res, undefined, 404)
+  }
+
+}
 /**
  * List all NFTs for which the signed-in user is the Owner.
  * @param {*} req { start, count }
@@ -125,25 +139,32 @@ export const listNFTs = async (req, res) => {
     const { user } = req
     const owner = await Owner.findOne({ user }).lean()
     if (owner) {
-      const nfts = await NFT.find({
-        owner
-      })
-        .sort({ _id: 'desc' })
-        .skip(parseInt(start))
-        .limit(parseInt(count))
-        .lean()
-      if (nfts) {
-        res.send(nfts)
-      } else {
-        sendError(`Unable to find NFTs for account ${owner.address}`, res, undefined, 404)
-      }
+      await getNFTs({ owner }, start, count, res)
     } else {
-      sendError(`The user ${req.user} does not own any NFTs`, res)
+      sendError(`The user ${req.user} does not own any NFTs`, res, undefined, 404)
     }
   } catch (error) {
-    sendError(`Error getting NFTs`, res, error)
+    sendError(`Error listing NFTs`, res, error)
   }
 }
+
+/**
+ * This is an *unauthenticated* call that uses ApiKey and is domain-restricted.
+ * 
+ * Get the NFTs for the address that have not been processed in an ETH
+ * transaction.
+ * @param {*} req { creatorUserId, start, count }
+ * @param {*} res 
+ */
+export const listPendingNFTs = async (req, res) => {
+  const { creatorUserId, start, count } = req.params
+  try {
+      await getNFTs({ creatorUserId, txStatus: TX_STATUS.NONE }, start, count, res)
+  } catch (error) {
+    sendError(`Error listing pending NFTs for ${creatorUserId}`, res, error)
+  }
+}
+
 /**
  * Called from the Core Service to pay credits owed to the specified
  * userId in ETH. The caller must send the ETH amount in USD, not inflated.

@@ -16,6 +16,7 @@ import {
   getNFTForMessage,
   getNFTMetadata,
   listNFTs,
+  listPendingNFTs,
   payArtistWithETH,
   startETHTransaction,
   startNFTTransaction,
@@ -33,11 +34,12 @@ import {
   WSS_PROVIDER_URL,
 } from './eth/tokenEvents'
 
-import { 
+import {
   hostCanBypassCors,
-  logErrorWithTime, logWithTime, 
-  referrerIsLocalhost} from './util/controllerUtil'
-import { verifyRequestUserId, verifyServiceApiKey } from './middleware/auth'
+  logErrorWithTime, logWithTime,
+  referrerIsLocalhost
+} from './util/controllerUtil'
+import { verifyApiKey, verifyRequestUserId, verifyServiceApiKey } from './middleware/auth'
 const ALLOWED_USER_AGENTS = ['FreshpingBot']
 export const allowedOrigins = ['https://www.harmonize.social']
 if (process.env.ALLOW_LOCALHOST) {
@@ -149,13 +151,14 @@ app.use(function (err, req, res, next) {
 })
 
 /** This is the ERC721 metadata endpoint -- public and no auth required */
-app.get('/nft/:tokenId',  getNFTMetadata)
+app.get('/nft/:tokenId', getNFTMetadata)
 
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
-app.get('/api/nft/get/:tokenId',  getNFT)
+app.get('/api/nft/get/:tokenId', getNFT)
 app.get('/api/nft/getByMessage/:messageId', [verifyRequestUserId], getNFTForMessage)
 app.get('/api/nft/listNFTs/:start/:count', [verifyRequestUserId], listNFTs)
-app.post('/api/nft/payArtistWithETH', 
+app.get('/api/nft/listPendingNFTs/:creatorUserId/:start/:count', [verifyApiKey], listPendingNFTs)
+app.post('/api/nft/payArtistWithETH',
   [verifyServiceApiKey],
   payArtistWithETH)
 
