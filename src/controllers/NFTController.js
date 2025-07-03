@@ -52,7 +52,6 @@ export const getNFT = async (req, res) => {
 }
 
 /**
- * Unauthenticated
  * @param {*} req 
  * @param {*} res nft if found, 404 if not
  */
@@ -70,6 +69,19 @@ export const getNFTForMessage = async (req, res) => {
   }
 }
 
+export const getNFTForToken = async (req, res) => {
+  const { tokenId } = req.params
+  try {
+    const nft = await NFT.findOne({ tokenId }).lean()
+    if (nft) {
+      res.send(nft)
+    } else {
+      sendError(`Unable to find NFT for token Id ${tokenId}`, res, undefined, 404)
+    }
+  } catch (error) {
+    sendError(`Error getting NFT for token Id ${tokenId}`, res, error)
+  }
+}
 /**
  {
     "title": "Asset Metadata",
