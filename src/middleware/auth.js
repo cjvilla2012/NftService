@@ -35,7 +35,7 @@ export const verifyApiKey = (req, res, next) => {
     logErrorWithTime(`API key ${apiKey} does not match ${process.env.REACT_APP_API_KEY}`)
     return res.status(401).send({ message: 'Unauthorized' })
   } else {
-    logWithTime(`... ${apiKey} verified`, req.url)
+    //logWithTime(`... ${apiKey} verified`, req.url)
     next()
   }
 }
@@ -50,7 +50,7 @@ export const verifyServiceApiKey = (req, res, next) => {
     logErrorWithTime(`API key ${apiKey} does not match ${process.env.SERVICE_API_KEY}`)
     return res.status(401).send({ message: 'Service Unauthorized' })
   } else {
-    logWithTime(`... ${apiKey} verified`, req.url)
+    //logWithTime(`... ${apiKey} verified`, req.url)
     next()
   }
 }
