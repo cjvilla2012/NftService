@@ -35,6 +35,27 @@ export const addNFT = async (req, res) => {
 /**
  * 
  * @param {*} req 
+ * @param {*} res 
+ */
+export const deleteNFT = async (req, res) => {
+  const { tokenId } = req.params
+  logWithTime(`deleteNFT ${tokenId}`)
+  try {
+    const nft = await NFT.findOneAndDelete({
+      tokenId, creatorUserId:req.user, txStatus: { $eq: TX_STATUS.NONE }
+    })
+    if (nft) {
+      res.sendStatus(200)
+    } else {
+      sendError(`Unable to find unminted token ${tokenId}`, res, undefined, 404)
+    }
+  } catch (error) {
+    sendError(`Unable to delete tokenId ${tokenId}`, res, error)
+  }
+}
+/**
+ * 
+ * @param {*} req 
  * @param {*} res nft if found, 404 if not
  */
 export const getNFT = async (req, res) => {
@@ -171,7 +192,7 @@ export const listNFTs = async (req, res) => {
 export const listPendingNFTs = async (req, res) => {
   const { creatorUserId, start, count } = req.params
   try {
-      await getNFTs({ creatorUserId, txStatus: TX_STATUS.NONE }, start, count, res)
+    await getNFTs({ creatorUserId, txStatus: TX_STATUS.NONE }, start, count, res)
   } catch (error) {
     sendError(`Error listing pending NFTs for ${creatorUserId}`, res, error)
   }
