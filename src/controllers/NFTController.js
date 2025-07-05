@@ -418,7 +418,7 @@ export const updateNFT = async (req, res) => {
       new: true,
     }).lean()
     if (updatedNFT) {
-      res.send(updateNFT)
+      res.send(updatedNFT)
     } else {
       sendError(`Failed updating NFT for _id ${_id}`, res, error)
     }
