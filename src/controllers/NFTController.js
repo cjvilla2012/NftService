@@ -411,9 +411,8 @@ export const startNFTTransaction = async (req, res) => {
  * @param {*} res Updated NFT
  */
 export const updateNFT = async (req, res) => {
-  const nft = req.body
-  const { _id, price } = nft
-  logWithTime(`updateNFT ${_id} price ${price}`)
+  const { _id, price } = req.body
+  logWithTime(`updateNFT ${_id} price ${price}`,req.body)
   try {
     const updatedNFT = await NFT.findByIdAndUpdate(_id, {price}, {
       new: true,
