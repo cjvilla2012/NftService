@@ -42,7 +42,7 @@ export const deleteNFT = async (req, res) => {
   logWithTime(`deleteNFT ${tokenId}`)
   try {
     const nft = await NFT.findOneAndDelete({
-      tokenId, creatorUserId:req.user, txStatus: { $eq: TX_STATUS.NONE }
+      tokenId, creatorUserId: req.user, txStatus: { $eq: TX_STATUS.NONE }
     })
     if (nft) {
       res.sendStatus(200)
@@ -405,3 +405,27 @@ export const startNFTTransaction = async (req, res) => {
 
 }
 
+/**
+ * Given the NFT specified by _id, update royaltyPercentage and price
+ * @param {*} req { _id, price }
+ * @param {*} res Updated NFT
+ */
+export const updateNFT = async (req, res) => {
+  const nft = req.body
+  const { _id, price } = nft
+  const nftToUpdate = {
+    price
+  }
+  try {
+    const updatedNFT = await NFT.findByIdAndUpdate(_id, nftToUpdate, {
+      new: true,
+    }).lean()
+    if (updatedNFT) {
+      res.send(updateNFT)
+    } else {
+      sendError(`Failed updating NFT for tokenId ${tokenId}`, res, error)
+    }
+  } catch (error) {
+    sendError(`Unable to update NFT for tokenId ${tokenId}`, res, error)
+  }
+}

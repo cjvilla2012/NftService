@@ -22,6 +22,7 @@ import {
   payArtistWithETH,
   startETHTransaction,
   startNFTTransaction,
+  updateNFT,
 } from './controllers/NFTController'
 
 import {
@@ -156,6 +157,7 @@ app.use(function (err, req, res, next) {
 app.get('/nft/:tokenId', getNFTMetadata)
 
 app.post('/api/nft/add', [verifyRequestUserId], addNFT)
+app.post('/api/nft/update', [verifyRequestUserId], updateNFT)
 app.get('/api/nft/delete/:tokenId', [verifyRequestUserId], deleteNFT)
 app.get('/api/nft/get/:tokenId', getNFT)
 app.get('/api/nft/getByMessage/:messageId', [verifyRequestUserId], getNFTForMessage)
