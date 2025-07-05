@@ -413,19 +413,17 @@ export const startNFTTransaction = async (req, res) => {
 export const updateNFT = async (req, res) => {
   const nft = req.body
   const { _id, price } = nft
-  const nftToUpdate = {
-    price
-  }
+  logWithTime(`updateNFT ${_id} price ${price}`)
   try {
-    const updatedNFT = await NFT.findByIdAndUpdate(_id, nftToUpdate, {
+    const updatedNFT = await NFT.findByIdAndUpdate(_id, {price}, {
       new: true,
     }).lean()
     if (updatedNFT) {
       res.send(updateNFT)
     } else {
-      sendError(`Failed updating NFT for tokenId ${tokenId}`, res, error)
+      sendError(`Failed updating NFT for _id ${_id}`, res, error)
     }
   } catch (error) {
-    sendError(`Unable to update NFT for tokenId ${tokenId}`, res, error)
+    sendError(`Unable to update NFT for _id ${_id}`, res, error)
   }
 }
