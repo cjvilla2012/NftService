@@ -14,16 +14,16 @@ export const TRANSACTION_TYPE = {
 
 
 /**
- * The price must be a Gwei string
- * @param {*} req 
+ * Adds an new nft document.
+ * @param {*} req { tokenId, mediaHash, name, description, messageId }
  * @param {*} res 
  */
 export const addNFT = async (req, res) => {
   logWithTime(`addNFT ${req.user}`, req.body)
-  const { tokenId, mediaHash, name, description, messageId, price } = req.body
+  const { tokenId, mediaHash, name, description, messageId } = req.body
   try {
     const nft = await NFT.create({
-      tokenId, mediaHash, name, description, messageId, price,
+      tokenId, mediaHash, name, description, messageId, 
       creatorUserId: req.user
     })
     res.send(nft)
@@ -406,15 +406,15 @@ export const startNFTTransaction = async (req, res) => {
 }
 
 /**
- * Given the NFT specified by _id, update royaltyPercentage and price
- * @param {*} req { _id, price }
+ * Given the NFT specified by _id, update price and textId.
+ * @param {*} req { _id, price,textId }
  * @param {*} res Updated NFT
  */
 export const updateNFT = async (req, res) => {
-  const { _id, price } = req.body
+  const { _id, price,textId } = req.body
   logWithTime(`updateNFT ${_id} price ${price}`,req.body)
   try {
-    const updatedNFT = await NFT.findByIdAndUpdate(_id, {price}, {
+    const updatedNFT = await NFT.findByIdAndUpdate(_id, {price,textId}, {
       new: true,
     }).lean()
     if (updatedNFT) {

@@ -2,7 +2,8 @@ import mongoose, { Schema } from 'mongoose'
 import { TX_STATUS } from '../eth/tokenEvents'
 /**Though NFTs can be discovered using the owner's Ethereum address, since we require a Harmonize
  * User account to mint or transact NFTs, we save the Harmonize Core Service Users in this table.
- * This means transactions that occur outside Harmonize cannot be queried using this collection.
+ * This means transactions that occur outside Harmonize cannot be queried 
+ * using this collection.
 
  * 0) The NFT is associated with a Social Service Message identified by messageId in this document.
  * The NFT is permanently associated with the Message even if it is not minted
@@ -43,6 +44,7 @@ const nftSchema = new mongoose.Schema(
     mediaHash: String,
     name: String,
     description: String,
+    textId:String, //The optional string passed as bytes24 to contract mint
     messageId: { type: String, required: true, index: { unique: true } },
     creatorUserId: {
       type: String,
