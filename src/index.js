@@ -176,7 +176,7 @@ app.post(
 
 app.post(
   '/api/eth/startETHTransaction',
-  [verifyRequestUserId],
+  [verifyApiKey],
   startETHTransaction
 )
 

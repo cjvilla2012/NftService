@@ -23,7 +23,7 @@ export const addNFT = async (req, res) => {
   const { tokenId, mediaHash, name, description, messageId } = req.body
   try {
     const nft = await NFT.create({
-      tokenId, mediaHash, name, description, messageId, 
+      tokenId, mediaHash, name, description, messageId,
       creatorUserId: req.user
     })
     res.send(nft)
@@ -379,7 +379,10 @@ export const startETHTransaction = async (req, res) => {
 /**
  * The user who owns the specified NFT has started to mint. This method
  * receives the txHash and using the tokenId updates the NFT with
- * the txHash and txStatus of STARTED.
+ * the txHash and txStatus of STARTED. The nft must have a txStatus of NONE.
+ * 
+ * Note that this is *unauthenticated* so that it can be called from a mobile
+ * wallet.
  * @param {*} req body: { tokenId, txHash }
  * @param {*} res status 200 or 500
  */
@@ -387,7 +390,7 @@ export const startNFTTransaction = async (req, res) => {
   const { tokenId, txHash } = req.body
   try {
     const nft = await NFT.findOneAndUpdate(
-      { tokenId },
+      { tokenId, txStatus: TX_STATUS.NONE },
       { txHash, txStatus: TX_STATUS.STARTED },
       {
         new: true,
@@ -411,10 +414,10 @@ export const startNFTTransaction = async (req, res) => {
  * @param {*} res Updated NFT
  */
 export const updateNFT = async (req, res) => {
-  const { _id, price,textId } = req.body
-  logWithTime(`updateNFT ${_id} price ${price}`,req.body)
+  const { _id, price, textId } = req.body
+  logWithTime(`updateNFT ${_id} price ${price}`, req.body)
   try {
-    const updatedNFT = await NFT.findByIdAndUpdate(_id, {price,textId}, {
+    const updatedNFT = await NFT.findByIdAndUpdate(_id, { price, textId }, {
       new: true,
     }).lean()
     if (updatedNFT) {
