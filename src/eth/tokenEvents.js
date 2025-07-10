@@ -3,7 +3,7 @@ import { HARMONIZE, HARMONIZE_ADDRESS } from '../abi/Harmonize'
 import Owner from '../models/owner'
 import NFT from '../models/nft'
 import { logErrorWithTime, logWithTime } from '../util/controllerUtil'
-import { addMessageTokenId, changeStreamingRightsUser } from '../controllers/SocialServiceController'
+import { addMessageTokenId, changeMessageUser } from '../controllers/SocialServiceController'
 import { getEthAccountUserId } from '../controllers/CoreServiceController'
 export const TX_STATUS = {
   NONE: 0,
@@ -139,7 +139,7 @@ const createOrUpdateOwner = async (tokenId, ownerAddress) => {
  * 
  * Using the "to" address, an Owner is either found or created. The nft identified by the tokenId
  * is then updated with this owner. The Message associated with the NFT is updated
- * so that its streamingRightsUserId is the id of the Core Service User associated
+ * with required fields from the Core Service User associated
  * with the "to" address via the userEthAccount field of User.
  * 
  * @param {*} event 
@@ -168,7 +168,7 @@ const processNFTTransfer = async (event) => {
         const { messageId } = nft
         const userId = await getEthAccountUserId(to)
         if (userId) {
-          await changeStreamingRightsUser(messageId, userId)
+          await changeMessageUser(messageId, userId)
         } else {
           throw new Error(`No userId when attempting to change streaming rights user for ${to}`)
         }

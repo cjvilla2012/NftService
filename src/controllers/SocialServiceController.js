@@ -48,30 +48,32 @@ export const addMessageTokenId = async (messageId, tokenId) => {
 }
 
 /**
- * Update the specified Social Service Message with the streamingRightsUser id
+ * Update the specified Social Service Message with the required fields
+ * for the User identified by newUserId. This changes the current owner
+ * to newUserId without changing the original creatorUserId.
  * @param {*} messageId 
- * @param {*} streamingRightsUserId 
+ * @param {*} newUserId 
  * @returns 
  */
-export const changeStreamingRightsUser = async (messageId, streamingRightsUserId) => {
-    logWithTime(`changeStreamingRightsUser ${messageId} streamingRightsUserId ${streamingRightsUserId}`)
+export const changeMessageUser = async (messageId, newUserId) => {
+    logWithTime(`changeMessageUser ${messageId} newUserId ${newUserId}`)
     try {
-        const response = await axios.post(process.env.CHANGE_MESSAGE_STREAMING_RIGHTS_USER_API,
-            { messageId, streamingRightsUserId }, {
+        const response = await axios.post(process.env.CHANGE_MESSAGE_USER_API,
+            { messageId, newUserId }, {
             headers: {
                 'service-api-key': process.env.SERVICE_API_KEY
             },
             timeout: 10000
         })
         if (response.status === 200) {
-            logWithTime('...changeStreamingRightsUser success', response.data)
+            logWithTime('...changeMessageUser success', response.data)
             return response.data
         } else {
-            console.error(`changeStreamingRightsUser FAILED ${response.status}: ${response.message}`)
+            console.error(`changeMessageUser FAILED ${response.status}: ${response.message}`)
         }
     } catch (error) {
-        console.error('changeStreamingRightsUser FAILED')
-        console.error(processAxiosException(error, 'changeStreamingRightsUser'))
+        console.error('changeMessageUser FAILED')
+        console.error(processAxiosException(error, 'changeMessageUser'))
     }
     return null
 }
