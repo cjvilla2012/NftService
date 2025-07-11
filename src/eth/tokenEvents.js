@@ -88,7 +88,9 @@ const setPrice = async (event) => {
 
 /**
  * If there is not an Owner with ownerAddress,
- * the Owner is created with a (Harmonize) user of the creatorUserId in the nft document.
+ * the Owner is created with the (Harmonize) User id that is associated with
+ * the ownerAddress. 
+ * 
  * If there is an Owner, no changes are made to it. The (new or existing Owner) is set 
  * as the owner field of the nft document. 
  * 
@@ -97,19 +99,12 @@ const setPrice = async (event) => {
  * is created.
  * @param {*} tokenId 
  * @param {*} ownerAddress 
+ * @param {*} user    User id associated with ownerAddress
  */
-const createOrUpdateOwner = async (tokenId, ownerAddress) => {
+const createOrUpdateNFTOwner = async (tokenId, ownerAddress, user) => {
   let owner = await Owner.findOne({ address: ownerAddress }).lean()
   if (!owner) {
-    const nft = await NFT.findOne({ tokenId }).lean()
-    if (nft) {
-      const { creatorUserId } = nft
-      owner = await Owner.create({ address: ownerAddress, user: creatorUserId })
-    } else {
-      logErrorWithTime(`WARNING: No NFT found for ${tokenId}, owner still created for ${ownerAddress}`)
-      await Owner.create({ address: ownerAddress })
-      owner = undefined
-    }
+    owner = await Owner.create({ address: ownerAddress, user })
   }
   if (owner) {
     await NFT.findOneAndUpdate({ tokenId }, { owner })
@@ -122,16 +117,20 @@ const createOrUpdateOwner = async (tokenId, ownerAddress) => {
  * an orphaned NFT, meaning an NFT was created but no matching token. Orphaned Assets can be found
  * by searching for those with a tokenId but txStatus is STARTED.
  * 
- * In the event, "address" is the contract address. The owner of the
+ * In the event, "address" is the contract address. The new owner of the
  * token is the "to" field in the returnValues. The "from" field for a mint is 0.
  * 
  * Minting
  * =======
  * 
  * When a token is minted, if there is not an Owner with the "to" address,
- * the Owner is created with a (Harmonize) user of the creatorUserId in the nft document.
+ * the Owner is created with a Core Service User associated with the to address.
+ * If there is no such User, an Error is thrown.
+ * 
  * If there is an Owner, no changes are made to it. The (new or existing Owner) is set 
- * as the owner field of the nft document. The Social Service is called to add the tokenId to the
+ * as the owner field of the nft document.
+ * 
+ * The Social Service is called to add the tokenId to the
  * associated Message identified in this service nft document.
  * 
  * Transfer (Purchase or Transfer)
@@ -148,7 +147,7 @@ const processNFTTransfer = async (event) => {
 
   const { transactionHash: txHash, returnValues } = event
   const { tokenId, to, from } = returnValues
-  logWithTime(`processNFTTransfer token ${tokenId} from ${from} to ${to}`)
+  logWithTime(`processNFTTransfer ${from == 0 ? 'MINT' : 'TRANSFER'} token ${tokenId} from ${from} to ${to}`)
   try {
     let update = { txHash, txStatus: TX_STATUS.COMPLETED }
     if (from != 0) {
@@ -158,20 +157,19 @@ const processNFTTransfer = async (event) => {
     if (!nft) {
       logErrorWithTime(`processNFTTransfer FAILED unable to find NFT for ${tokenId}`)
     } else {
-      await createOrUpdateOwner(tokenId, to)
-      if (from == 0) {
-        //MINT
-        const { messageId } = nft
-        await addMessageTokenId(messageId, tokenId)
-      } else if (to != 0) {
-        //TRANSFER from->to
-        const { messageId } = nft
-        const userId = await getEthAccountUserId(to)
-        if (userId) {
+      const { messageId } = nft
+      const userId = await getEthAccountUserId(to)
+      if (userId) {
+        await createOrUpdateNFTOwner(tokenId, to, userId)
+        if (from == 0) {
+          //MINT
+          await addMessageTokenId(messageId, tokenId)
+        } else if (to != 0) {
+          //TRANSFER from->to
           await changeMessageUser(messageId, userId)
-        } else {
-          throw new Error(`No userId when attempting to change streaming rights user for ${to}`)
         }
+      } else {
+        throw new Error(`No userId associated with ${to}`)
       }
     }
   } catch (error) {

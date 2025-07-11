@@ -19,8 +19,9 @@ import { TX_STATUS } from '../eth/tokenEvents'
      are stored in the nft table
   8) Once a Message has a minted NFT, it cannot be deleted or changed in any way
 
-  The creatorUserId is the Harmonize User id that created the NFT document. The
-  owner is an Owner that is assigned when the Transfer event is received
+  The creatorUserId is the Harmonize User id that created the NFT document. This never changes.
+  
+  The owner is an Owner that is assigned when the Transfer event is received
 
    * 
  * This document is also used to satisfy calls to the ERC721Metadata tokenUri. The endpoint
