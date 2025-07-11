@@ -377,6 +377,8 @@ export const startETHTransaction = async (req, res) => {
 
 }
 /**
+ * Requires ApiKey.
+ * 
  * The user who owns the specified NFT has started to mint. This method
  * receives the txHash and using the tokenId updates the NFT with
  * the txHash and txStatus of STARTED. The nft must have a txStatus of NONE.
