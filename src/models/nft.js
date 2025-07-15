@@ -19,7 +19,15 @@ import { TX_STATUS } from '../eth/tokenEvents'
      are stored in the nft table
   8) Once a Message has a minted NFT, it cannot be deleted or changed in any way
 
-  The creatorUserId is the Harmonize User id that created the NFT document. This never changes.
+  The creatorUserId is the Harmonize User id that created the NFT document. 
+  This never changes.
+  
+  The creatorEthAccount is the ETH address at the time the NFT
+  document was created. The primary purpose of this field is to match the NFT
+  document to the current ETH account when mint commences. When using
+  a mobile wallet that does not sign into Harmonize, it is possible to switch
+  ETH accounts in the wallet. The creatorEthAccount ensures the minting
+  account is the same as the creator.
   
   The owner is an Owner that is assigned when the Transfer event is received
 
@@ -49,6 +57,11 @@ const nftSchema = new mongoose.Schema(
     messageId: { type: String, required: true, index: { unique: true } },
     creatorUserId: {
       type: String,
+      required:true
+    },
+    creatorEthAccount:{
+      type:String,
+      required:true
     },
     owner: { type: Schema.Types.ObjectId, ref: 'Owner', index: true },
     price: {//Sale price in Gwei

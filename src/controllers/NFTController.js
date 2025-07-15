@@ -15,15 +15,18 @@ export const TRANSACTION_TYPE = {
 
 /**
  * Adds an new nft document.
- * @param {*} req { tokenId, mediaHash, name, description, messageId }
+ * @param {*} req { tokenId, mediaHash, name, description, messageId,ethAccount }
  * @param {*} res 
  */
 export const addNFT = async (req, res) => {
   logWithTime(`addNFT ${req.user}`, req.body)
-  const { tokenId, mediaHash, name, description, messageId } = req.body
+  const { tokenId, mediaHash, name, description, messageId,
+    ethAccount
+  } = req.body
   try {
     const nft = await NFT.create({
       tokenId, mediaHash, name, description, messageId,
+      creatorEthAccount: ethAccount.toLowerCase(),
       creatorUserId: req.user
     })
     res.send(nft)
