@@ -46,3 +46,34 @@ export const addMessageTokenId = async (messageId, tokenId) => {
     }
     return null
 }
+
+/**
+ * Update the specified Social Service Message with the required fields
+ * for the User identified by newUserId. This changes the current owner
+ * to newUserId without changing the original creatorUserId.
+ * @param {*} messageId 
+ * @param {*} newUserId 
+ * @returns 
+ */
+export const changeMessageUser = async (messageId, newUserId) => {
+    logWithTime(`changeMessageUser ${messageId} newUserId ${newUserId}`)
+    try {
+        const response = await axios.post(process.env.CHANGE_MESSAGE_USER_API,
+            { messageId, newUserId }, {
+            headers: {
+                'service-api-key': process.env.SERVICE_API_KEY
+            },
+            timeout: 10000
+        })
+        if (response.status === 200) {
+            logWithTime('...changeMessageUser success', response.data)
+            return response.data
+        } else {
+            console.error(`changeMessageUser FAILED ${response.status}: ${response.message}`)
+        }
+    } catch (error) {
+        console.error('changeMessageUser FAILED')
+        console.error(processAxiosException(error, 'changeMessageUser'))
+    }
+    return null
+}

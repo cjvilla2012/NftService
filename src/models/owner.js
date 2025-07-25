@@ -48,7 +48,11 @@ const ownerSchema = new mongoose.Schema(
     ],
   },
 
-  { timestamps: true, toJSON: { virtuals: true } }
+  {
+    timestamps: true,
+    collation: { locale: 'en', strength: 2 },//For case-insensitive searches     
+    toJSON: { virtuals: true }
+  }
 )
 
 const Owner = mongoose.model('Owner', ownerSchema)

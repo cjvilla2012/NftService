@@ -170,7 +170,7 @@ app.post('/api/nft/payArtistWithETH',
 
 app.post(
   '/api/nft/startNFTTransaction',
-  [verifyRequestUserId],
+  [verifyApiKey],
   startNFTTransaction
 )
 
